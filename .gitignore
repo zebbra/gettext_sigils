@@ -22,3 +22,8 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 gettext_sigils-*.tar
 
+# Claude Code user-specific settings
+.claude/settings.local.json
+
+# zen-x local clone
+.zebbra/zen-x/

@@ -7,7 +7,9 @@ defmodule GettextSigils.MixProject do
       version: "0.1.0",
       elixir: "~> 1.19",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      usage_rules: usage_rules(),
+      aliases: aliases()
     ]
   end
 
@@ -18,11 +20,30 @@ defmodule GettextSigils.MixProject do
     ]
   end
 
+  defp usage_rules do
+    [
+      file: "AGENTS.md",
+      usage_rules: [
+        :usage_rules,
+        {~r/.*/, link: :markdown}
+      ]
+    ]
+  end
+
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
+      {:tidewave, "~> 0.5", only: [:dev]},
+      {:usage_rules, "~> 1.0", only: [:dev]},
+      {:igniter, "~> 0.6", only: [:dev]},
+      {:bandit, "~> 1.0", only: [:dev]}
+    ]
+  end
+
+  defp aliases do
+    [
+      tidewave:
+        "run --no-halt -e 'Agent.start(fn -> Bandit.start_link(plug: Tidewave, port: 4000) end)'"
     ]
   end
 end
