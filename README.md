@@ -70,9 +70,6 @@ defmodule MyApp.Errors.NotFound do
   end
 end
 ```
-
-**Note:** Depending on the `domain` and `context` options, the `~t` sigil will use the corresponding Gettext macro (e.g. `gettext`, `dgettext`, `pgettext`, `dpgettext`)
-
 ## Interpolation
 
 Gettext [interpolation](https://hexdocs.pm/gettext/Gettext.html#module-interpolation) works similar to regular Elixir strings:
@@ -95,22 +92,31 @@ For simple variables and when accessing nested fields, the Gettext interpolation
 
 **Note:** The key is `assigns_user_name` because the expression is translated by HEEx to `assigns.user.name`.
 
-For complex expressions, a generic key is generated from the position of the interpolation in the string:
+For function calls, the key is derived from the function name:
 
 ```elixir
-~t"Order status: #{order_status(resp[field])}"
+~t"Status: #{String.upcase(status)}"
 
 # is equivalent to
-gettext("Order status: %{var1}", %{var1: order_status(resp[field])})
+gettext("Status: %{string_upcase}", string_upcase: String.upcase(status))
 ```
 
-For more control what key is used, the following syntax can be used:
+For expressions that don't map to a meaningful name, a generic `var` key is used:
+
+```elixir
+~t"Value: #{1 + 2}"
+
+# is equivalent to
+gettext("Value: %{+}", +: 1 + 2)
+```
+
+For more control over what key is used, the `::` syntax can be used:
 
 ```elixir
 ~t"Order status: #{status :: order_status(resp[field])}"
 
 # is equivalent to
-gettext("Order status: %{status}", %{status: order_status(resp[field])})
+gettext("Order status: %{status}", status: order_status(resp[field]))
 ```
 
 **Note:** The interpolation keys have to be unique! Duplicate keys will result in a compilation error:
