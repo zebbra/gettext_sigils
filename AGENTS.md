@@ -1,3 +1,28 @@
+# Agent Instructions
+
+I'm building this Elixir library as described in the @README.md
+
+## Implementation Plan
+
+1. [x] Write `README.md` that describes the library
+2. [x] Setup test suite using ExUnit
+3. [x] Test and implement basic functionality (see "Basic Usage")
+4. [x] Test and implement Gettext domain & context (see "Domain & Context")
+5. [x] Test and implement Gettext interpolation (see "Interpolation")
+6. [ ] Write documentation for ExDoc
+7. [ ] Prepare for release on hex.pm
+
+# Guidelines
+
+## Testing
+
+- Use best practices for Elixir testing, with focus on readability.
+- Create e ExUnit test module for each module that is being tested.
+
+# Usage Rules
+
+**IMPORTANT:** Prefer Tidewave MCP tools for reading documentation if possible.
+
 <!-- usage-rules-start -->
 <!-- usage_rules-start -->
 ## usage_rules usage
