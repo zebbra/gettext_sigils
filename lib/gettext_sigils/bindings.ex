@@ -10,6 +10,8 @@ defmodule GettextSigils.Bindings do
 
   alias GettextSigils.Error.DuplicateInterpolationKeys
 
+  @fallback_binding_key "var"
+
   def parse(expr) do
     try do
       {:ok, parse!(expr)}
@@ -108,9 +110,14 @@ defmodule GettextSigils.Bindings do
   defp binding_key_from_expr({name, _, context}) when is_atom(name) and is_atom(context),
     do: name
 
-  # Local function call: `order_status(x)` → "order_status"
-  defp binding_key_from_expr({name, _, args}) when is_atom(name) and is_list(args),
-    do: name
+  # Local function call or operator:
+  #  - `order_status(x)` → "order_status"
+  #  - `1 + 1` → "var"
+  defp binding_key_from_expr({name, _, args}) when is_atom(name) and is_list(args) do
+    if Macro.operator?(name, length(args)),
+      do: @fallback_binding_key,
+      else: name
+  end
 
   # Dot access: `fruit.name` → "fruit_name"
   defp binding_key_from_expr({{:., _, [receiver, field]}, _, []}) do
@@ -126,7 +133,7 @@ defmodule GettextSigils.Bindings do
   # Fallback for expressions that don't map to a meaningful name.
   # Multiple occurrences will trigger a DuplicateInterpolationKeys error,
   # prompting the user to provide explicit keys via the `::` syntax.
-  defp binding_key_from_expr(_expr), do: "var"
+  defp binding_key_from_expr(_expr), do: @fallback_binding_key
 
   # Normalize binding keys to lowercase strings
   #

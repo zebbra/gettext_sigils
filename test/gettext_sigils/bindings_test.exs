@@ -78,17 +78,7 @@ defmodule GettextSigils.BindingsTest do
 
   describe "arithmetic" do
     test "single arithmetic expression" do
-      assert parse!("sum: #{1 + 2}") ==
-               {"sum: %{+}", [+: 3]}
-    end
-
-    test "multiple arithmetic expressions" do
-      {x, y} = {1, 2}
-
-      assert parse!("#{x - 1} + #{y + 1} = #{res :: x + y}") == {
-               "%{-} + %{+} = %{res}",
-               [{:-, 0}, {:+, 3}, {:res, 3}]
-             }
+      assert parse!("sum: #{1 + 2}") == {"sum: %{var}", [var: 3]}
     end
   end
 
