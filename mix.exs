@@ -17,6 +17,7 @@ defmodule GettextSigils.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       aliases: aliases(),
+      usage_rules: usage_rules(),
 
       # Docs
       name: "Gettext Sigils",
@@ -41,10 +42,21 @@ defmodule GettextSigils.MixProject do
     [
       {:gettext, "~> 1.0"},
       {:tidewave, "~> 0.5", only: [:dev]},
+      {:usage_rules, "~> 1.0", only: [:dev]},
       {:igniter, "~> 0.6", only: [:dev]},
       {:bandit, "~> 1.0", only: [:dev]},
       {:styler, "~> 1.11", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.37", only: :dev, runtime: false}
+    ]
+  end
+
+  defp usage_rules do
+    [
+      file: "AGENTS.md",
+      usage_rules: [
+        :usage_rules,
+        {~r/.*/, link: :markdown}
+      ]
     ]
   end
 
@@ -71,6 +83,10 @@ defmodule GettextSigils.MixProject do
 
   defp aliases do
     [
+      lint: [
+        "compile --all-warnings --warnings-as-errors",
+        "format --check-formatted"
+      ],
       tidewave: "run --no-halt -e 'Agent.start(fn -> Bandit.start_link(plug: Tidewave, port: 4000) end)'"
     ]
   end
