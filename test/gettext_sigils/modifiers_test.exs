@@ -90,5 +90,25 @@ defmodule GettextSigils.ModifiersTest do
         end
       end
     end
+
+    test "raises on non-keyword-list modifier options" do
+      assert_raise ArgumentError, ~r/must be a keyword list/, fn ->
+        defmodule BadModifierOpts do
+          use GettextSigils,
+            backend: GettextSigils.DummyGettext,
+            sigils: [modifiers: [e: "errors"]]
+        end
+      end
+    end
+
+    test "raises on unknown modifier options" do
+      assert_raise ArgumentError, ~r/unknown options.*domainn/, fn ->
+        defmodule TypoModifierOpts do
+          use GettextSigils,
+            backend: GettextSigils.DummyGettext,
+            sigils: [modifiers: [e: [domainn: "errors"]]]
+        end
+      end
+    end
   end
 end
