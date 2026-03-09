@@ -1,8 +1,8 @@
-defmodule GettextSigils.BindingsTest do
+defmodule GettextSigils.InterpolationTest do
   use ExUnit.Case
 
   defmacrop parse(ast) do
-    {msgid, bindings} = GettextSigils.Bindings.parse(ast)
+    {msgid, bindings} = GettextSigils.Interpolation.parse(ast)
     quote do: {unquote(msgid), unquote(bindings)}
   end
 

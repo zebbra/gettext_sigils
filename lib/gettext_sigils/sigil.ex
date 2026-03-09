@@ -2,7 +2,7 @@ defmodule GettextSigils.Sigil do
   @moduledoc false
 
   defmacro sigil_t(ast, modifiers) do
-    {msgid, bindings} = GettextSigils.Bindings.parse(ast)
+    {msgid, bindings} = GettextSigils.Interpolation.parse(ast)
     translate(__CALLER__, msgid, bindings, modifiers)
   end
 
