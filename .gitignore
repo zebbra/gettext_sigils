@@ -27,3 +27,6 @@ gettext_sigils-*.tar
 
 # zen-x local clone
 .zebbra/zen-x/
+
+# Local env vars
+.env
