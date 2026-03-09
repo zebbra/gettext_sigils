@@ -27,15 +27,7 @@ defmodule GettextSigils.DummyGettext do
   end
 
   @impl Gettext.Backend
-  def handle_missing_plural_translation(
-        _locale,
-        domain,
-        msgctxt,
-        msgid,
-        msgid_plural,
-        n,
-        bindings
-      ) do
+  def handle_missing_plural_translation(_locale, domain, msgctxt, msgid, msgid_plural, n, bindings) do
     msg = if n == 1, do: msgid, else: msgid_plural
     bindings = Map.put(bindings, :count, n)
     result = prefix(domain, msgctxt) <> interpolate(msg, bindings)

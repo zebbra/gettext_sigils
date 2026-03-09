@@ -34,11 +34,12 @@ defmodule GettextSigils.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:gettext, "~> 0.26"},
+      {:gettext, "~> 1.0"},
       {:tidewave, "~> 0.5", only: [:dev]},
       {:usage_rules, "~> 1.0", only: [:dev]},
       {:igniter, "~> 0.6", only: [:dev]},
-      {:bandit, "~> 1.0", only: [:dev]}
+      {:bandit, "~> 1.0", only: [:dev]},
+      {:styler, "~> 1.11", only: [:dev, :test], runtime: false}
     ]
   end
 
@@ -47,8 +48,7 @@ defmodule GettextSigils.MixProject do
 
   defp aliases do
     [
-      tidewave:
-        "run --no-halt -e 'Agent.start(fn -> Bandit.start_link(plug: Tidewave, port: 4000) end)'"
+      tidewave: "run --no-halt -e 'Agent.start(fn -> Bandit.start_link(plug: Tidewave, port: 4000) end)'"
     ]
   end
 end

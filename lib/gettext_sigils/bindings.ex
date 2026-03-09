@@ -8,39 +8,10 @@ defmodule GettextSigils.Bindings do
   #
   @moduledoc false
 
-  alias GettextSigils.Error.DuplicateInterpolationKeys
-
   @fallback_binding_key "var"
 
   def parse(expr) do
-    try do
-      {:ok, parse!(expr)}
-    rescue
-      error -> {:error, error}
-    end
-  end
-
-  def parse!(expr) do
-    expr
-    |> build_msgid_and_bindings()
-    |> tap(&validate_duplicate_keys!(expr, &1))
-  end
-
-  defp validate_duplicate_keys!(expr, {msgid, bindings}) do
-    duplicates =
-      bindings
-      |> Keyword.keys()
-      |> find_duplicate_keys()
-
-    if duplicates != [] do
-      raise DuplicateInterpolationKeys, expr: expr, msgid: msgid, duplicates: duplicates
-    end
-
-    :ok
-  end
-
-  defp find_duplicate_keys(keys) do
-    Enum.uniq(keys -- Enum.uniq(keys))
+    build_msgid_and_bindings(expr)
   end
 
   # plain binary string — no interpolations
@@ -99,7 +70,7 @@ defmodule GettextSigils.Bindings do
   end
 
   # string interpolation segment
-  # #{x} -> {"%{x}", [{:x, x}]}
+  # #{x} -> {:x, x}
   defp segment_to_literal_or_binding({:"::", _, [expr, {:binary, _, _}]}) do
     {key, value_expr} =
       expr
@@ -116,8 +87,7 @@ defmodule GettextSigils.Bindings do
   #   - Explicit key:  `#{key :: expr}` → key derived from `key`, value is `expr`
   #   - Implicit key:  `#{expr}`        → key derived from `expr`, value is `expr`
 
-  defp binding_from_expr({:"::", _, [{key, _, context}, value]})
-       when is_atom(key) and is_atom(context) do
+  defp binding_from_expr({:"::", _, [{key, _, context}, value]}) when is_atom(key) and is_atom(context) do
     {key, value}
   end
 
@@ -133,8 +103,7 @@ defmodule GettextSigils.Bindings do
   ## Key derivation from AST expressions
 
   # Simple variable: `name` → "name"
-  defp binding_key_from_expr({name, _, context}) when is_atom(name) and is_atom(context),
-    do: name
+  defp binding_key_from_expr({name, _, context}) when is_atom(name) and is_atom(context), do: name
 
   # Local function call or operator:
   #  - `order_status(x)` → "order_status"
