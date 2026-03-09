@@ -11,7 +11,7 @@ defmodule GettextSigils.DomainContextTest do
   defmodule WithDomain do
     use GettextSigils,
       backend: GettextSigils.TestGettext,
-      domain: "errors"
+      sigils: [default_domain: "errors"]
 
     def msg, do: ~t"Not found"
     def msg(path), do: ~t"File #{path} not found"
@@ -20,7 +20,7 @@ defmodule GettextSigils.DomainContextTest do
   defmodule WithContext do
     use GettextSigils,
       backend: GettextSigils.TestGettext,
-      context: "admin"
+      sigils: [default_context: "admin"]
 
     def msg, do: ~t"Dashboard"
     def not_found, do: ~t"Not found"
@@ -29,8 +29,10 @@ defmodule GettextSigils.DomainContextTest do
   defmodule WithDomainAndContext do
     use GettextSigils,
       backend: GettextSigils.TestGettext,
-      domain: "errors",
-      context: "admin"
+      sigils: [
+        default_domain: "errors",
+        default_context: "admin"
+      ]
 
     def msg, do: ~t"Not found"
     def msg(path), do: ~t"File #{path} not found"

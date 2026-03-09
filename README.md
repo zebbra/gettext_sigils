@@ -47,17 +47,19 @@ gettext("Hello, World")
 
 ## Domain & Context
 
-Gettext [domain](https://hexdocs.pm/gettext/Gettext.html#module-domains) and [context](https://hexdocs.pm/gettext/Gettext.html#module-contexts) are provided as options when using the module and are used whenever using the `~t` sigil inside this module.
+Gettext [domain](https://hexdocs.pm/gettext/Gettext.html#module-domains) and [context](https://hexdocs.pm/gettext/Gettext.html#module-contexts) are provided under the `sigils` key when using the module. All other options are passed through to `use Gettext`.
 
 ```elixir
 defmodule MyApp.Errors.NotFound do
   use GettextSigils,
     backend: MyApp.Gettext,
-    domain: "errors",
-    context: inspect(__MODULE__)
+    sigils: [
+      default_domain: "errors",
+      default_context: inspect(__MODULE__)
+    ]
 
   def description(path) do
-    # uses domain and context from options
+    # uses domain and context from sigils options
     ~t[The file "#{path}" does not exist]
 
     # is equivalent to

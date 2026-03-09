@@ -7,8 +7,9 @@ defmodule GettextSigils.Sigil do
   end
 
   defp translate(caller, msgid, bindings) do
-    domain = Module.get_attribute(caller.module, :__gettext_sigils_domain__)
-    context = Module.get_attribute(caller.module, :__gettext_sigils_context__)
+    opts = Module.get_attribute(caller.module, :__gettext_sigils__)
+    domain = Keyword.get(opts, :default_domain, :default)
+    context = Keyword.get(opts, :default_context, nil)
 
     quote do
       dpgettext(

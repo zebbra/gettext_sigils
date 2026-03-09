@@ -1,13 +1,11 @@
 defmodule GettextSigils do
   defmacro __using__(opts) do
-    {domain, opts} = Keyword.pop(opts, :domain, :default)
-    {context, opts} = Keyword.pop(opts, :context, nil)
+    {sigils_opts, gettext_opts} = Keyword.pop(opts, :sigils, [])
 
     quote do
-      use Gettext, unquote(opts)
+      use Gettext, unquote(gettext_opts)
       import GettextSigils.Sigil
-      @__gettext_sigils_domain__ unquote(domain)
-      @__gettext_sigils_context__ unquote(context)
+      @__gettext_sigils__ unquote(sigils_opts)
     end
   end
 end
