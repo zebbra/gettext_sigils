@@ -1,19 +1,26 @@
 defmodule GettextSigils.MixProject do
   use Mix.Project
 
+  @description """
+  A ~t sigil for Gettext translations, to reduce boilerplate and improve readability.
+  """
+
+  @version "0.1.0"
+
   def project do
     [
       app: :gettext_sigils,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.16",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       name: "Gettext Sigils",
+      description: @description,
       source_url: "https://github.com/zebbra/gettext_sigils",
       docs: docs(),
-      usage_rules: usage_rules(),
-      aliases: aliases()
+      aliases: aliases(),
+      package: package()
     ]
   end
 
@@ -24,22 +31,11 @@ defmodule GettextSigils.MixProject do
     ]
   end
 
-  defp usage_rules do
-    [
-      file: "AGENTS.md",
-      usage_rules: [
-        :usage_rules,
-        {~r/.*/, link: :markdown}
-      ]
-    ]
-  end
-
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
       {:gettext, "~> 1.0"},
       {:tidewave, "~> 0.5", only: [:dev]},
-      {:usage_rules, "~> 1.0", only: [:dev]},
       {:igniter, "~> 0.6", only: [:dev]},
       {:bandit, "~> 1.0", only: [:dev]},
       {:styler, "~> 1.11", only: [:dev, :test], runtime: false},
@@ -51,6 +47,17 @@ defmodule GettextSigils.MixProject do
     [
       main: "GettextSigils",
       extras: ["README.md"]
+    ]
+  end
+
+  defp package do
+    [
+      name: "gettext_sigils",
+      licenses: ["MIT"],
+      files: ~w(lib .formatter.exs mix.exs README.md LICENSE),
+      links: %{
+        "GitHub" => "https://github.com/zebbra/gettext_sigils"
+      }
     ]
   end
 
