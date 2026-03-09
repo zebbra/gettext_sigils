@@ -2,7 +2,7 @@
 
 <!-- MDOC -->
 
-An Elixir library that provides a `~t` sigil for using [`Gettext`](https://hexdocs.pm/gettext/Gettext.html) translations with:
+An Elixir library that provides a `~t` sigil for using [`Gettext`](https://hexdocs.pm/gettext/Gettext.html) translations with less boilerplate and improved readability:
 
 ```elixir
 # before

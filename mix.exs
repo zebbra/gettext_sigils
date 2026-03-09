@@ -6,6 +6,7 @@ defmodule GettextSigils.MixProject do
   """
 
   @version "0.1.0"
+  @github_url "https://github.com/zebbra/gettext_sigils"
 
   def project do
     [
@@ -15,11 +16,15 @@ defmodule GettextSigils.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      name: "Gettext Sigils",
-      description: @description,
-      source_url: "https://github.com/zebbra/gettext_sigils",
-      docs: docs(),
       aliases: aliases(),
+
+      # Docs
+      name: "Gettext Sigils",
+      docs: docs(),
+
+      # Hex
+      description: @description,
+      source_url: @github_url,
       package: package()
     ]
   end
@@ -56,7 +61,7 @@ defmodule GettextSigils.MixProject do
       licenses: ["MIT"],
       files: ~w(lib .formatter.exs mix.exs README.md LICENSE),
       links: %{
-        "GitHub" => "https://github.com/zebbra/gettext_sigils"
+        "GitHub" => @github_url
       }
     ]
   end
