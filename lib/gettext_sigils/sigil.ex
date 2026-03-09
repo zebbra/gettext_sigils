@@ -33,13 +33,13 @@ defmodule GettextSigils.Sigil do
       case Keyword.fetch(modifier_defs, key) do
         {:ok, opts} ->
           d = Keyword.get(opts, :domain, d)
-          c = if Keyword.has_key?(opts, :context), do: Keyword.get(opts, :context), else: c
+          c = Keyword.get(opts, :context, c)
           {d, c}
 
         :error ->
           raise ArgumentError,
-            "unknown sigil modifier #{inspect(key)}, " <>
-              "defined modifiers: #{inspect(Keyword.keys(modifier_defs))}"
+                "unknown sigil modifier #{inspect(key)}, " <>
+                  "defined modifiers: #{inspect(Keyword.keys(modifier_defs))}"
       end
     end)
   end

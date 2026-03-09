@@ -9,27 +9,27 @@ defmodule GettextSigils.Options do
 
   defp validate_modifiers!(modifiers) do
     for {key, opts} <- modifiers do
-      unless Atom.to_string(key) =~ ~r/^[a-z]$/ do
+      if !(Atom.to_string(key) =~ ~r/^[a-z]$/) do
         raise ArgumentError,
-          "modifier keys must be lowercase letters (a-z), got: #{inspect(key)}"
+              "modifier keys must be lowercase letters (a-z), got: #{inspect(key)}"
       end
 
-      unless Keyword.keyword?(opts) do
+      if !Keyword.keyword?(opts) do
         raise ArgumentError,
-          "modifier #{inspect(key)}: options must be a keyword list, got: #{inspect(opts)}"
+              "modifier #{inspect(key)}: options must be a keyword list, got: #{inspect(opts)}"
       end
 
       invalid_keys = Keyword.keys(opts) -- @valid_modifier_keys
 
       if invalid_keys != [] do
         raise ArgumentError,
-          "modifier #{inspect(key)}: unknown options #{inspect(invalid_keys)}, " <>
-            "expected: #{inspect(@valid_modifier_keys)}"
+              "modifier #{inspect(key)}: unknown options #{inspect(invalid_keys)}, " <>
+                "expected: #{inspect(@valid_modifier_keys)}"
       end
 
-      if Keyword.has_key?(opts, :domain) and Keyword.get(opts, :domain) == nil do
+      with {:ok, nil} <- Keyword.fetch(opts, :domain) do
         raise ArgumentError,
-          "modifier #{inspect(key)}: domain cannot be nil, Gettext always requires a domain"
+              "modifier #{inspect(key)}: domain cannot be nil, Gettext always requires a domain"
       end
     end
   end
