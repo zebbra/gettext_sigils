@@ -56,6 +56,20 @@ defmodule GettextSigils.ModifiersTest do
     end
   end
 
+  describe "unknown modifier" do
+    test "raises on undefined modifier" do
+      assert_raise ArgumentError, ~r/unknown sigil modifier/, fn ->
+        defmodule UnknownModifier do
+          use GettextSigils,
+            backend: GettextSigils.DummyGettext,
+            sigils: [modifiers: [e: [domain: "errors"]]]
+
+          def test_it, do: ~t"hello"x
+        end
+      end
+    end
+  end
+
   describe "modifier validation" do
     test "raises on non-lowercase modifier key" do
       assert_raise ArgumentError, ~r/must be lowercase letters/, fn ->
