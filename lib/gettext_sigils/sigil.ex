@@ -8,8 +8,8 @@ defmodule GettextSigils.Sigil do
 
   defp translate(caller, msgid, bindings, modifiers) do
     opts = Module.get_attribute(caller.module, :__gettext_sigils__)
-    domain = Keyword.get(opts, :default_domain, :default)
-    context = Keyword.get(opts, :default_context, nil)
+    domain = Keyword.get(opts, :domain, :default)
+    context = Keyword.get(opts, :context, nil)
     modifier_defs = Keyword.get(opts, :modifiers, [])
 
     {domain, context} = resolve_modifiers(modifiers, modifier_defs, domain, context)

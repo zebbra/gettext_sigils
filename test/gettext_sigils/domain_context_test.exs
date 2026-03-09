@@ -12,7 +12,7 @@ defmodule GettextSigils.DomainContextTest do
   describe "domain option" do
     use GettextSigils,
       backend: GettextSigils.DummyGettext,
-      sigils: [default_domain: "errors"]
+      sigils: [domain: "errors"]
 
     test "uses errors domain" do
       assert ~t"example" == "errors: example"
@@ -22,7 +22,7 @@ defmodule GettextSigils.DomainContextTest do
   describe "context option" do
     use GettextSigils,
       backend: GettextSigils.DummyGettext,
-      sigils: [default_context: "admin"]
+      sigils: [context: "admin"]
 
     test "uses admin context in default domain" do
       assert ~t"example" == "default/admin: example"
@@ -33,8 +33,8 @@ defmodule GettextSigils.DomainContextTest do
     use GettextSigils,
       backend: GettextSigils.DummyGettext,
       sigils: [
-        default_domain: "errors",
-        default_context: "admin"
+        domain: "errors",
+        context: "admin"
       ]
 
     test "uses errors domain with admin context" do

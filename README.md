@@ -56,8 +56,8 @@ defmodule MyApp.Errors.NotFound do
   use GettextSigils,
     backend: MyApp.Gettext,
     sigils: [
-      default_domain: "errors",
-      default_context: inspect(__MODULE__)
+      domain: "errors",
+      context: inspect(__MODULE__)
     ]
 
   def description(path) do
@@ -77,14 +77,14 @@ end
 
 ## Modifiers
 
-Sigil [modifiers](https://hexdocs.pm/elixir/sigils.html#modifiers) (single lowercase letters appended to the sigil) can be used to override the domain and context on a per-translation basis. Define modifiers in the `sigils` options:
+Sigil modifiers (single lowercase letters appended to the sigil) can be used to override the domain and context on a per-translation basis. Define modifiers in the `sigils` options:
 
 ```elixir
 defmodule MyApp.Frontend do
   use GettextSigils,
     backend: MyApp.Gettext,
     sigils: [
-      default_domain: "frontend",
+      domain: "frontend",
       modifiers: [
         e: [domain: "errors"],
         g: [domain: "default", context: nil],

@@ -5,7 +5,7 @@ defmodule GettextSigils.ModifiersTest do
     use GettextSigils,
       backend: GettextSigils.DummyGettext,
       sigils: [
-        default_domain: "frontend",
+        domain: "frontend",
         modifiers: [
           e: [domain: "errors"],
           m: [context: "MyModule"]
@@ -29,7 +29,7 @@ defmodule GettextSigils.ModifiersTest do
     use GettextSigils,
       backend: GettextSigils.DummyGettext,
       sigils: [
-        default_domain: "frontend",
+        domain: "frontend",
         modifiers: [
           e: [domain: "errors"],
           m: [context: "MyModule"],
@@ -60,6 +60,7 @@ defmodule GettextSigils.ModifiersTest do
     test "raises on undefined modifier" do
       assert_raise ArgumentError, ~r/unknown sigil modifier/, fn ->
         defmodule UnknownModifier do
+          @moduledoc false
           use GettextSigils,
             backend: GettextSigils.DummyGettext,
             sigils: [modifiers: [e: [domain: "errors"]]]
@@ -74,6 +75,7 @@ defmodule GettextSigils.ModifiersTest do
     test "raises on non-lowercase modifier key" do
       assert_raise ArgumentError, ~r/must be lowercase letters/, fn ->
         defmodule InvalidModifierKey do
+          @moduledoc false
           use GettextSigils,
             backend: GettextSigils.DummyGettext,
             sigils: [modifiers: [A: [domain: "errors"]]]
@@ -84,6 +86,7 @@ defmodule GettextSigils.ModifiersTest do
     test "raises on nil domain in modifier" do
       assert_raise ArgumentError, ~r/domain.*nil/, fn ->
         defmodule NilDomainModifier do
+          @moduledoc false
           use GettextSigils,
             backend: GettextSigils.DummyGettext,
             sigils: [modifiers: [e: [domain: nil]]]
@@ -94,6 +97,7 @@ defmodule GettextSigils.ModifiersTest do
     test "raises on non-keyword-list modifier options" do
       assert_raise ArgumentError, ~r/must be a keyword list/, fn ->
         defmodule BadModifierOpts do
+          @moduledoc false
           use GettextSigils,
             backend: GettextSigils.DummyGettext,
             sigils: [modifiers: [e: "errors"]]
@@ -104,6 +108,7 @@ defmodule GettextSigils.ModifiersTest do
     test "raises on unknown modifier options" do
       assert_raise ArgumentError, ~r/unknown options.*domainn/, fn ->
         defmodule TypoModifierOpts do
+          @moduledoc false
           use GettextSigils,
             backend: GettextSigils.DummyGettext,
             sigils: [modifiers: [e: [domainn: "errors"]]]
