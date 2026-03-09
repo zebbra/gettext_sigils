@@ -53,7 +53,10 @@ defmodule GettextSigils.Bindings do
   # each segment is either a literal binary or an interpolation node
   # shaped as `{:"::", _, [expr, {:binary, _, _}]}`.
   defp build_msgid_and_bindings({:<<>>, _, segments}) when is_list(segments) do
-    parts = Enum.map(segments, &segment_to_literal_or_binding/1)
+    parts =
+      segments
+      |> Enum.map(&segment_to_literal_or_binding/1)
+      |> deduplicate_binding_keys()
 
     {msgid, bindings} =
       Enum.map_reduce(parts, [], fn
@@ -65,6 +68,29 @@ defmodule GettextSigils.Bindings do
       end)
 
     {IO.iodata_to_binary(msgid), Enum.reverse(bindings)}
+  end
+
+  defp deduplicate_binding_keys(parts) do
+    binding_keys =
+      Enum.reduce(parts, [], fn
+        {key, _}, acc -> [key | acc]
+        _, acc -> acc
+      end)
+
+    freq = Enum.frequencies(binding_keys)
+
+    {parts, _counts} =
+      Enum.map_reduce(parts, %{}, fn
+        {key, value}, counts ->
+          count = Map.get(counts, key, 0) + 1
+          new_key = if freq[key] > 1, do: "#{key}#{count}", else: key
+          {{new_key, value}, Map.put(counts, key, count)}
+
+        literal, counts ->
+          {literal, counts}
+      end)
+
+    parts
   end
 
   # literal binary segment -> no bindings
