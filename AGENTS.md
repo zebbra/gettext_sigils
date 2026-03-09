@@ -1,13 +1,42 @@
 # Agent Instructions
 
-<TOOD>
+## Library Overview
+
+**GettextSigils** provides a `~t` sigil for Elixir's Gettext, replacing verbose `gettext`/`dgettext`/`pgettext` calls with concise, interpolation-aware syntax.
+
+### Core Modules
+
+- **`GettextSigils`** — Main entry point. `use GettextSigils, backend: MyApp.Gettext` imports the `~t` sigil and configures domain, context, and modifiers.
+- **`GettextSigils.Sigil`** — Implements `sigil_t/2`. Parses interpolation, resolves modifiers, and emits `dpgettext/4` calls at compile time.
+- **`GettextSigils.Interpolation`** — Converts `#{expr}` to `%{key}` placeholders with automatic key derivation (e.g. `user.name` → `user_name`, `String.upcase(x)` → `string_upcase`). Supports explicit keys via `key :: expr` syntax.
+- **`GettextSigils.Options`** — Validates compile-time configuration: `:domain`, `:context`, and `:modifiers` (single lowercase letter keys mapping to domain/context overrides).
+
+### Key Features
+
+- **Automatic interpolation**: `~t"Hello, #{user.name}!"` → `dpgettext(backend, "default", nil, "Hello, %{user_name}!", user_name: user.name)`
+- **Modifiers**: Single-letter suffixes override domain/context per-call (e.g. `~t"Error"e` uses the `errors` domain)
+- **Modifier composition**: Multiple modifiers apply left-to-right, last wins (`~t"msg"em` ≠ `~t"msg"me`)
+- **Compile-time only**: All transformation happens via macros — zero runtime overhead
+- **Pluralization**: Not currently supported
+
+### Architecture
+
+All processing is compile-time macro expansion. No processes, no state. Each module using `GettextSigils` stores its configuration in the `@__gettext_sigils__` module attribute. The sigil macro reads this attribute to resolve domain, context, and modifiers when generating the Gettext call.
+
+## Commits
+
+Use [Conventional Commits](https://www.conventionalcommits.org/) — release-please automates releases from them.
+
+- **`feat:`** and **`fix:`** trigger a release and appear in the changelog (patch bump while pre-1.0)
+- `docs:`, `chore:`, `ci:`, `test:`, `refactor:` — no release triggered
+- **Breaking changes**: add `!` after type (e.g. `feat!:`) or a `BREAKING CHANGE:` footer — bumps minor while pre-1.0
 
 # Guidelines
 
 ## Testing
 
 - Use best practices for Elixir testing, with focus on readability.
-- Create e ExUnit test module for each module that is being tested.
+- Create an ExUnit test module for each module that is being tested.
 
 # Usage Rules
 
