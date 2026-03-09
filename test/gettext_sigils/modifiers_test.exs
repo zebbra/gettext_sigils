@@ -25,6 +25,37 @@ defmodule GettextSigils.ModifiersTest do
     end
   end
 
+  describe "multiple modifiers" do
+    use GettextSigils,
+      backend: GettextSigils.DummyGettext,
+      sigils: [
+        default_domain: "frontend",
+        modifiers: [
+          e: [domain: "errors"],
+          m: [context: "MyModule"],
+          g: [domain: "default", context: nil]
+        ]
+      ]
+
+    test "domain + context modifiers combine" do
+      assert ~t"hello"em == "errors/MyModule: hello"
+    end
+
+    test "modifier order matters — last domain wins" do
+      assert ~t"hello"eg == "default: hello"
+      assert ~t"hello"ge == "errors: hello"
+    end
+
+    test "nil context removes context" do
+      assert ~t"hello"mg == "default: hello"
+    end
+
+    test "modifiers work with interpolation" do
+      name = "world"
+      assert ~t"hello #{name}"e == "errors: hello world"
+    end
+  end
+
   describe "modifier validation" do
     test "raises on non-lowercase modifier key" do
       assert_raise ArgumentError, ~r/must be lowercase letters/, fn ->
