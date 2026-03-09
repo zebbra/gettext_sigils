@@ -1,8 +1,14 @@
 defmodule GettextSigils do
-  @moduledoc false
+  @moduledoc "README.md"
+             |> File.read!()
+             |> String.split("<!-- MDOC -->")
+             |> Enum.fetch!(1)
+
+  @external_resource "README.md"
 
   defmacro __using__(opts) do
     {sigils_opts, gettext_opts} = Keyword.pop(opts, :sigils, [])
+
     GettextSigils.Options.validate!(sigils_opts)
 
     quote do

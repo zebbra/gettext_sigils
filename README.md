@@ -1,5 +1,7 @@
 # Gettext Sigils
 
+<!-- MDOC -->
+
 An Elixir library that provides a `~t` sigil for using [`Gettext`](https://hexdocs.pm/gettext/Gettext.html) translations with:
 
 ```elixir
@@ -72,6 +74,42 @@ defmodule MyApp.Errors.NotFound do
   end
 end
 ```
+
+## Modifiers
+
+Sigil [modifiers](https://hexdocs.pm/elixir/sigils.html#modifiers) (single lowercase letters appended to the sigil) can be used to override the domain and context on a per-translation basis. Define modifiers in the `sigils` options:
+
+```elixir
+defmodule MyApp.Frontend do
+  use GettextSigils,
+    backend: MyApp.Gettext,
+    sigils: [
+      default_domain: "frontend",
+      modifiers: [
+        e: [domain: "errors"],
+        g: [domain: "default", context: nil],
+        m: [context: inspect(__MODULE__)]
+      ]
+    ]
+
+  def example do
+    ~t"Welcome"           # domain: "frontend", context: nil
+    ~t"Not found"e        # domain: "errors",   context: nil
+    ~t"Hello"m            # domain: "frontend", context: "MyApp.Frontend"
+    ~t"Oops"em            # domain: "errors",   context: "MyApp.Frontend"
+  end
+end
+```
+
+Multiple modifiers can be combined and are applied left to right — the last modifier to set a given option wins:
+
+```elixir
+~t"hello"eg   # if `g` sets domain: "default", the domain is "default" (not "errors")
+~t"hello"ge   # if `e` sets domain: "errors", the domain is "errors"
+```
+
+Each modifier key must be a single lowercase letter (`a`–`z`) and accepts the options `:domain` and `:context`. Using an undefined modifier results in a compile-time error.
+
 ## Interpolation
 
 Gettext [interpolation](https://hexdocs.pm/gettext/Gettext.html#module-interpolation) works similar to regular Elixir strings:
@@ -121,12 +159,17 @@ For more control over what key is used, the `::` syntax can be used:
 gettext("Order status: %{status}", status: order_status(resp[field]))
 ```
 
-**Note:** The interpolation keys have to be unique! Duplicate keys will result in a compilation error:
+**Note:** Duplicate interpolation keys are automatically suffixed with a number to ensure uniqueness:
 
 ```elixir
-~t"Invalid: #{x :: "foo"} #{x :: "bar"}"
+~t"#{x :: "foo"} #{x :: "bar"}"
+
+# is equivalent to
+gettext("%{x1} %{x2}", x1: "foo", x2: "bar")
 ```
 
 ## Pluralization
 
 Gettext pluralization (`ngettext`, ...) is currently **not** supported.
+
+<!-- MDOC -->

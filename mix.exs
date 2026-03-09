@@ -9,6 +9,9 @@ defmodule GettextSigils.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      name: "Gettext Sigils",
+      source_url: "https://github.com/zebbra/gettext_sigils",
+      docs: docs(),
       usage_rules: usage_rules(),
       aliases: aliases()
     ]
@@ -39,7 +42,15 @@ defmodule GettextSigils.MixProject do
       {:usage_rules, "~> 1.0", only: [:dev]},
       {:igniter, "~> 0.6", only: [:dev]},
       {:bandit, "~> 1.0", only: [:dev]},
-      {:styler, "~> 1.11", only: [:dev, :test], runtime: false}
+      {:styler, "~> 1.11", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.37", only: :dev, runtime: false}
+    ]
+  end
+
+  defp docs do
+    [
+      main: "GettextSigils",
+      extras: ["README.md"]
     ]
   end
 
