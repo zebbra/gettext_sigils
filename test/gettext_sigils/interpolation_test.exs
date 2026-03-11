@@ -60,12 +60,31 @@ defmodule GettextSigils.InterpolationTest do
       assert parse("#{String.upcase("a")} and #{String.downcase("B")}") ==
                {"%{string_upcase} and %{string_downcase}", [string_upcase: "A", string_downcase: "b"]}
     end
+
+    def double(x), do: x * 2
+
+    test "local function calls" do
+      assert parse("local function: #{double(2)}") ==
+               {"local function: %{double}", [double: 4]}
+    end
+
+    test "anonymous function calls" do
+      double = fn x -> x * 2 end
+
+      assert parse("anonymous function: #{double.(2)}") ==
+               {"anonymous function: %{var}", [var: 4]}
+    end
   end
 
   describe "literal values" do
     test "single literal value" do
       assert parse("single: #{1}") ==
                {"single: %{var}", [var: 1]}
+    end
+
+    test "multiple literal values" do
+      assert parse("one: #{1} two: #{:foo}") ==
+               {"one: %{var1} two: %{var2}", [var1: 1, var2: :foo]}
     end
   end
 
@@ -82,9 +101,10 @@ defmodule GettextSigils.InterpolationTest do
     end
   end
 
-  describe "duplicate keys are suffixed" do
-    test "raises on duplicate keys" do
-      assert parse("#{x :: :foo} #{x :: :bar}") == {"%{x1} %{x2}", [x1: :foo, x2: :bar]}
+  describe "duplicate keys" do
+    test "duplicate keys are suffixed" do
+      {foo, bar} = {:foo, :bar}
+      assert parse("#{foo} #{foo} #{foo :: bar}") == {"%{foo1} %{foo2} %{foo3}", [foo1: foo, foo2: foo, foo3: bar]}
     end
   end
 end
