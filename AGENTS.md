@@ -33,10 +33,7 @@ Use [Conventional Commits](https://www.conventionalcommits.org/) — release-ple
 
 # Guidelines
 
-## Testing
-
-- Use best practices for Elixir testing, with focus on readability.
-- Create an ExUnit test module for each module that is being tested.
+- Always run `mix precommit` before committing
 
 # Usage Rules
 

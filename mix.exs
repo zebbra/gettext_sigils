@@ -40,6 +40,7 @@ defmodule GettextSigils.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:credo, "~> 1.0", only: [:dev, :test], runtime: false},
       {:gettext, "~> 1.0"},
       {:tidewave, "~> 0.5", only: [:dev]},
       {:usage_rules, "~> 1.0", only: [:dev]},
@@ -83,9 +84,13 @@ defmodule GettextSigils.MixProject do
 
   defp aliases do
     [
+      precommit: [
+        "lint"
+      ],
       lint: [
         "compile --all-warnings --warnings-as-errors",
-        "format --check-formatted"
+        "format --check-formatted",
+        "credo --strict"
       ],
       tidewave: "run --no-halt -e 'Agent.start(fn -> Bandit.start_link(plug: Tidewave, port: 4000) end)'"
     ]
