@@ -94,6 +94,7 @@ defmodule MyApp.Frontend do
 
   def example do
     ~t"Welcome"           # domain: "frontend", context: nil
+    ~t"Yes"g              # domain: "default",  context: nil
     ~t"Not found"e        # domain: "errors",   context: nil
     ~t"Hello"m            # domain: "frontend", context: "MyApp.Frontend"
     ~t"Oops"em            # domain: "errors",   context: "MyApp.Frontend"
@@ -159,13 +160,23 @@ For more control over what key is used, the `::` syntax can be used:
 gettext("Order status: %{status}", status: order_status(resp[field]))
 ```
 
-**Note:** Duplicate interpolation keys are automatically suffixed with a number to ensure uniqueness:
+**Note:** Duplicate interpolation keys are allowed if they refer to the same expression:
 
 ```elixir
-~t"#{x :: "foo"} #{x :: "bar"}"
+~t"#{name} is #{name}"
 
 # is equivalent to
-gettext("%{x1} %{x2}", x1: "foo", x2: "bar")
+gettext("%{name} is %{name}", name: name)
+```
+
+Using the same key with different values raises an `AmbiguousInterpolationKeys` error:
+
+```elixir
+# This raises — use explicit keys to disambiguate:
+~t"#{x :: foo} #{x :: bar}"
+
+# Fix:
+~t"#{foo_val :: foo} #{bar_val :: bar}"
 ```
 
 ## Pluralization

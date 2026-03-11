@@ -22,23 +22,32 @@ defmodule GettextSigils.Interpolation do
 
   All keys are lowercased and joined with underscores.
 
-  ## Duplicate Keys
+  ## Ambiguous Keys
 
-  When the same key appears more than once, a numeric suffix is appended
-  to each occurrence to ensure uniqueness:
+  When the same key appears more than once with the same value expression,
+  the duplicates are merged (the key appears only once in the bindings):
 
-      ~t"#{x :: "a"} #{x :: "b"}"
-      #=> msgid: "%{x1} %{x2}", bindings: [x1: "a", x2: "b"]
+      ~t"#{name} is #{name}"
+      #=> msgid: "%{name} is %{name}", bindings: [name: name]
+
+  When the same key appears with different value expressions, a
+  `AmbiguousInterpolationKeys` error is raised, prompting the user to provide
+  distinct explicit keys:
+
+      ~t"#{x :: foo} #{x :: bar}"
+      #=> ** (AmbiguousInterpolationKeys) ambiguous interpolation key "x" with different values
   """
+
+  alias GettextSigils.Errors.AmbiguousInterpolationKeys
 
   @fallback_binding_key "var"
 
-  def parse(expr) do
-    build_msgid_and_bindings(expr)
+  def parse!(expr) do
+    build_msgid_and_bindings!(expr)
   end
 
   # plain binary string — no interpolations
-  defp build_msgid_and_bindings(binary) when is_binary(binary), do: {binary, []}
+  defp build_msgid_and_bindings!(binary) when is_binary(binary), do: {binary, []}
 
   # List of segements from string interpolation:
   #
@@ -46,14 +55,11 @@ defmodule GettextSigils.Interpolation do
   #
   # each segment is either a literal binary or an interpolation node
   # shaped as `{:"::", _, [expr, {:binary, _, _}]}`.
-  defp build_msgid_and_bindings({:<<>>, _, segments}) when is_list(segments) do
-    parts =
+  defp build_msgid_and_bindings!({:<<>>, _, segments} = expr) when is_list(segments) do
+    {msgid_parts, bindings} =
       segments
       |> Enum.map(&segment_to_literal_or_binding/1)
-      |> deduplicate_binding_keys()
-
-    {msgid, bindings} =
-      Enum.map_reduce(parts, [], fn
+      |> Enum.map_reduce([], fn
         {key, value}, acc ->
           {["%{", key, "}"], [{String.to_atom(key), value} | acc]}
 
@@ -61,30 +67,51 @@ defmodule GettextSigils.Interpolation do
           {literal, acc}
       end)
 
-    {IO.iodata_to_binary(msgid), Enum.reverse(bindings)}
+    msgid = IO.iodata_to_binary(msgid_parts)
+
+    case deduplicate_bindings(bindings) do
+      {unique_bindings, []} -> {msgid, unique_bindings}
+      {_, ambiguous} -> raise AmbiguousInterpolationKeys, expr: expr, msgid: msgid, keys: ambiguous
+    end
   end
 
-  defp deduplicate_binding_keys(parts) do
-    binding_keys =
-      Enum.reduce(parts, [], fn
-        {key, _}, acc -> [key | acc]
-        _, acc -> acc
+  defp deduplicate_bindings(bindings) do
+    {bindings, duplicates, _seen} =
+      Enum.reduce(bindings, {[], [], %{}}, fn {key, expr}, {keep, duplicates, seen} ->
+        stripped_expr = strip_meta(expr)
+
+        case Map.fetch(seen, key) do
+          :error ->
+            {
+              [{key, expr} | keep],
+              duplicates,
+              Map.put(seen, key, stripped_expr)
+            }
+
+          {:ok, ^stripped_expr} ->
+            {
+              keep,
+              duplicates,
+              seen
+            }
+
+          {:ok, _} ->
+            {
+              keep,
+              [key | duplicates],
+              seen
+            }
+        end
       end)
 
-    freq = Enum.frequencies(binding_keys)
+    {bindings, duplicates}
+  end
 
-    {parts, _counts} =
-      Enum.map_reduce(parts, %{}, fn
-        {key, value}, counts ->
-          count = Map.get(counts, key, 0) + 1
-          new_key = if freq[key] > 1, do: "#{key}#{count}", else: key
-          {{new_key, value}, Map.put(counts, key, count)}
-
-        literal, counts ->
-          {literal, counts}
-      end)
-
-    parts
+  defp strip_meta(ast) do
+    Macro.prewalk(ast, fn
+      {form, _meta, args} -> {form, [], args}
+      other -> other
+    end)
   end
 
   # literal binary segment -> no bindings
@@ -149,7 +176,7 @@ defmodule GettextSigils.Interpolation do
   end
 
   # Fallback for expressions that don't map to a meaningful name.
-  # Multiple occurrences will trigger a DuplicateInterpolationKeys error,
+  # Multiple occurrences will trigger an AmbiguousInterpolationKeys error,
   # prompting the user to provide explicit keys via the `::` syntax.
   defp binding_key_from_expr(_expr), do: @fallback_binding_key
 
