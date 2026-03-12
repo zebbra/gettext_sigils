@@ -1,5 +1,10 @@
-defmodule GettextSigils.Errors.AmbiguousInterpolationKeys do
-  @moduledoc false
+defmodule GettextSigils.AmbiguousInterpolationError do
+  @moduledoc """
+  Raised when a `~t` sigil produces duplicate interpolation keys bound to different expressions.
+
+  For example, `~t"\#{x :: foo} \#{x :: bar}"` raises this error because the key `x`
+  maps to two different expressions. Use distinct keys to disambiguate.
+  """
   defexception [:expr, :msgid, :keys]
 
   @impl true

@@ -113,74 +113,62 @@ Each modifier key must be a single lowercase letter (`a`–`z`) and accepts the 
 
 ## Interpolation
 
-Gettext [interpolation](https://hexdocs.pm/gettext/Gettext.html#module-interpolation) works similar to regular Elixir strings:
+Gettext [interpolation](https://hexdocs.pm/gettext/Gettext.html#module-interpolation) works similar to regular Elixir strings. Keys are derived automatically from the expression:
 
 ```elixir
-~t"The #{fruit.name} is #{fruit.color.name}"
+# Variables and dot access -> key derived from expression
+~t"The #{fruit.name} is #{color}"
+# =>
+gettext("The %{fruit_name} is %{color}", fruit_name: fruit.name, color: color)
 
-# is equivalent to
-gettext(
-  "The %{fruit_name} is %{fruit_color_name}",
-  fruit_name: fruit.name, fruit_color_name: fruit.color.name
-)
-```
-
-For simple variables and when accessing nested fields, the Gettext interpolation key is derived from the expression. This also works inside HEEx with assigns:
-
-```heex
-<div>{{~t"User: #{@user.name}"}}</div>
-```
-
-**Note:** The key is `assigns_user_name` because the expression is translated by HEEx to `assigns.user.name`.
-
-For function calls, the key is derived from the function name:
-
-```elixir
+# Local and remote function calls -> key derived from received and function name
 ~t"Status: #{String.upcase(status)}"
-
-# is equivalent to
+# =>
 gettext("Status: %{string_upcase}", string_upcase: String.upcase(status))
-```
 
-For expressions that don't map to a meaningful name, a generic `var` key is used:
-
-```elixir
+# Other expressions -> generic "var" key
 ~t"Value: #{1 + 2}"
-
-# is equivalent to
+# =>
 gettext("Value: %{var}", var: 1 + 2)
 ```
 
-For more control over what key is used, the `::` syntax can be used:
+### Explicit keys
+
+Explicit keys can be used with the `::` syntax for more control to disambiguate between multiple variables with the same name:
+
+Explicit key with `::` syntax:
 
 ```elixir
 ~t"Order status: #{status :: order_status(resp[field])}"
-
-# is equivalent to
+# =>
 gettext("Order status: %{status}", status: order_status(resp[field]))
 ```
 
-**Note:** Duplicate interpolation keys are allowed if they refer to the same expression:
+Duplicate keys are allowed if they refer to the same expression:
 
 ```elixir
 ~t"#{name} is #{name}"
-
-# is equivalent to
+# => 
 gettext("%{name} is %{name}", name: name)
 ```
 
-Using the same key with different values raises an `AmbiguousInterpolationKeys` error:
+Ambiguous keys raise an error:
 
 ```elixir
-# This raises — use explicit keys to disambiguate:
-~t"#{x :: foo} #{x :: bar}"
+~t"Invalid: #{Foo.bar()} != #{foo_bar}"
+# => raises AmbiguousInterpolationError
+```
 
-# Fix:
-~t"#{foo_val :: foo} #{bar_val :: bar}"
+Use `::` to disambiguate between expressions with the same key:
+
+```elixir
+~t"Valid: #{x :: Foo.bar()} != #{y :: foo_bar}"
+# =>
+gettext("Valid: %{x} != %{y}", x: Foo.bar(), y: foo_bar)
 ```
 
 ## Pluralization
 
-Gettext pluralization (`ngettext`, ...) is currently **not** supported.
+Gettext pluralization (`ngettext`, ...) is currently **not** supported. See open [issue #3](https://github.com/zebbra/gettext_sigils/issues/3).
 
 <!-- MDOC -->

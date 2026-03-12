@@ -31,14 +31,14 @@ defmodule GettextSigils.Interpolation do
       #=> msgid: "%{name} is %{name}", bindings: [name: name]
 
   When the same key appears with different value expressions, a
-  `AmbiguousInterpolationKeys` error is raised, prompting the user to provide
+  `AmbiguousInterpolationError` is raised, prompting the user to provide
   distinct explicit keys:
 
       ~t"#{x :: foo} #{x :: bar}"
-      #=> ** (AmbiguousInterpolationKeys) ambiguous interpolation key "x" with different values
+      #=> ** (AmbiguousInterpolationError) ambiguous interpolation key "x" with different values
   """
 
-  alias GettextSigils.Errors.AmbiguousInterpolationKeys
+  alias GettextSigils.AmbiguousInterpolationError
 
   @fallback_binding_key "var"
 
@@ -71,7 +71,7 @@ defmodule GettextSigils.Interpolation do
 
     case deduplicate_bindings(bindings) do
       {unique_bindings, []} -> {msgid, unique_bindings}
-      {_, ambiguous} -> raise AmbiguousInterpolationKeys, expr: expr, msgid: msgid, keys: ambiguous
+      {_, ambiguous} -> raise AmbiguousInterpolationError, expr: expr, msgid: msgid, keys: ambiguous
     end
   end
 
@@ -176,7 +176,7 @@ defmodule GettextSigils.Interpolation do
   end
 
   # Fallback for expressions that don't map to a meaningful name.
-  # Multiple occurrences will trigger an AmbiguousInterpolationKeys error,
+  # Multiple occurrences will trigger an AmbiguousInterpolationError,
   # prompting the user to provide explicit keys via the `::` syntax.
   defp binding_key_from_expr(_expr), do: @fallback_binding_key
 
