@@ -116,55 +116,40 @@ Each modifier key must be a single lowercase letter (`a`–`z`) and accepts the 
 Gettext [interpolation](https://hexdocs.pm/gettext/Gettext.html#module-interpolation) works similar to regular Elixir strings. Keys are derived automatically from the expression:
 
 ```elixir
-# Variables and dot access -> key derived from expression
 ~t"The #{fruit.name} is #{color}"
-# =>
-gettext("The %{fruit_name} is %{color}", fruit_name: fruit.name, color: color)
+# => gettext("The %{fruit_name} is %{color}", fruit_name: fruit.name, color: color)
 
-# Local and remote function calls -> key derived from received and function name
 ~t"Status: #{String.upcase(status)}"
-# =>
-gettext("Status: %{string_upcase}", string_upcase: String.upcase(status))
+# => gettext("Status: %{string_upcase}", string_upcase: String.upcase(status))
 
-# Other expressions -> generic "var" key
 ~t"Value: #{1 + 2}"
-# =>
-gettext("Value: %{var}", var: 1 + 2)
+# => gettext("Value: %{var}", var: 1 + 2)
 ```
+
+Duplicate keys are allowed if they refer to the same expression. Otherwise, an ambiguous key error is raised.
+
+```elixir
+# This is allowed:
+~t"#{name} is #{name}"
+# => gettext("%{name} is %{name}", name: name)
+
+# This is NOT allowed:
+~t"This is invalid: #{Foo.bar()} != #{foo.bar}"
+# => raises AmbiguousInterpolationError (foo_bar)
+```
+
+Use explicit keys to disambiguate between expressions with the same key.
 
 ### Explicit keys
 
-Explicit keys can be used with the `::` syntax for more control to disambiguate between multiple variables with the same name:
-
-Explicit key with `::` syntax:
+Explicit keys can be used with the `::` syntax for more control to disambiguate between multiple bindings with the same key:
 
 ```elixir
 ~t"Order status: #{status :: order_status(resp[field])}"
-# =>
-gettext("Order status: %{status}", status: order_status(resp[field]))
-```
+# => gettext("Order status: %{status}", status: order_status(resp[field]))
 
-Duplicate keys are allowed if they refer to the same expression:
-
-```elixir
-~t"#{name} is #{name}"
-# => 
-gettext("%{name} is %{name}", name: name)
-```
-
-Ambiguous keys raise an error:
-
-```elixir
-~t"Invalid: #{Foo.bar()} != #{foo_bar}"
-# => raises AmbiguousInterpolationError
-```
-
-Use `::` to disambiguate between expressions with the same key:
-
-```elixir
 ~t"Valid: #{x :: Foo.bar()} != #{y :: foo_bar}"
-# =>
-gettext("Valid: %{x} != %{y}", x: Foo.bar(), y: foo_bar)
+# => gettext("Valid: %{x} != %{y}", x: Foo.bar(), y: foo_bar)
 ```
 
 ## Pluralization
