@@ -1,8 +1,8 @@
 defmodule GettextSigils.DomainContextTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   describe "no domain, no context (default)" do
-    use GettextSigils, backend: GettextSigils.DummyGettext
+    use GettextSigils, backend: GettextSigilsTest.DummyGettext
 
     test "uses default domain, no context" do
       assert ~t"example" == "default: example"
@@ -11,7 +11,7 @@ defmodule GettextSigils.DomainContextTest do
 
   describe "domain option" do
     use GettextSigils,
-      backend: GettextSigils.DummyGettext,
+      backend: GettextSigilsTest.DummyGettext,
       sigils: [domain: "errors"]
 
     test "uses errors domain" do
@@ -21,7 +21,7 @@ defmodule GettextSigils.DomainContextTest do
 
   describe "context option" do
     use GettextSigils,
-      backend: GettextSigils.DummyGettext,
+      backend: GettextSigilsTest.DummyGettext,
       sigils: [context: "admin"]
 
     test "uses admin context in default domain" do
@@ -31,7 +31,7 @@ defmodule GettextSigils.DomainContextTest do
 
   describe "domain and context options" do
     use GettextSigils,
-      backend: GettextSigils.DummyGettext,
+      backend: GettextSigilsTest.DummyGettext,
       sigils: [
         domain: "errors",
         context: "admin"

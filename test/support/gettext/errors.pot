@@ -1,0 +1,5 @@
+#: test/support/gettext.ex:23
+#, elixir-autogen, elixir-format
+msgctxt "GettextSigilsTest.GettextTest"
+msgid "with modifiers"
+msgstr ""

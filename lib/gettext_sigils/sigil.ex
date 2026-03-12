@@ -1,18 +1,26 @@
 defmodule GettextSigils.Sigil do
-  @moduledoc false
+  @moduledoc """
+  Provides the `~t` sigil for interpolated translations.
 
-  defmacro sigil_t(ast, modifiers) do
-    {msgid, bindings} = GettextSigils.Interpolation.parse!(ast)
-    translate(__CALLER__, msgid, bindings, modifiers)
-  end
+  This module is automatically imported into modules that use `GettextSigils`.
+  """
 
-  defp translate(caller, msgid, bindings, modifiers) do
-    opts = Module.get_attribute(caller.module, :__gettext_sigils__)
-    domain = Keyword.get(opts, :domain, :default)
-    context = Keyword.get(opts, :context, nil)
-    modifier_defs = Keyword.get(opts, :modifiers, [])
+  alias GettextSigils.Interpolation
+  alias GettextSigils.Modifiers
 
-    {domain, context} = resolve_modifiers(modifiers, modifier_defs, domain, context)
+  @doc """
+  Translates the given string using the `Gettext` module.
+
+  Elixir string interpolations are converted to `Gettext` interpolation syntax (e.g. `%{name}`),
+  with their values as bindings.
+  """
+
+  @spec sigil_t(Macro.t(), charlist()) :: Macro.t()
+  defmacro sigil_t(term, modifiers) do
+    opts = Module.get_attribute(__CALLER__.module, :__gettext_sigils__)
+
+    {domain, context} = Modifiers.resolve!(modifiers, opts)
+    {msgid, bindings} = Interpolation.parse!(term)
 
     quote do
       dpgettext(
@@ -22,25 +30,5 @@ defmodule GettextSigils.Sigil do
         unquote(bindings)
       )
     end
-  end
-
-  defp resolve_modifiers([], _defs, domain, context), do: {domain, context}
-
-  defp resolve_modifiers(modifiers, modifier_defs, domain, context) do
-    Enum.reduce(modifiers, {domain, context}, fn modifier, {d, c} ->
-      key = List.to_atom([modifier])
-
-      case Keyword.fetch(modifier_defs, key) do
-        {:ok, opts} ->
-          d = Keyword.get(opts, :domain, d)
-          c = Keyword.get(opts, :context, c)
-          {d, c}
-
-        :error ->
-          raise ArgumentError,
-                "unknown sigil modifier #{inspect(key)}, " <>
-                  "defined modifiers: #{inspect(Keyword.keys(modifier_defs))}"
-      end
-    end)
   end
 end

@@ -1,4 +1,4 @@
-defmodule GettextSigils.DummyGettext do
+defmodule GettextSigilsTest.DummyGettext do
   @moduledoc """
   A dummy Gettext backend for testing that returns the domain and context
   as part of the translated string instead of looking up PO files.

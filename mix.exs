@@ -37,6 +37,10 @@ defmodule GettextSigils.MixProject do
     ]
   end
 
+  def cli do
+    [preferred_envs: ["test.watch": :test]]
+  end
+
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
@@ -47,7 +51,8 @@ defmodule GettextSigils.MixProject do
       {:igniter, "~> 0.6", only: [:dev]},
       {:bandit, "~> 1.0", only: [:dev]},
       {:styler, "~> 1.11", only: [:dev, :test], runtime: false},
-      {:ex_doc, "~> 0.37", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.37", only: :dev, runtime: false},
+      {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false}
     ]
   end
 

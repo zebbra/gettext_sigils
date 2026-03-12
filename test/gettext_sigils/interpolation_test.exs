@@ -4,8 +4,7 @@ defmodule GettextSigils.InterpolationTest do
   alias GettextSigils.Errors.AmbiguousInterpolationKeys
 
   defmacrop parse!(ast) do
-    {msgid, bindings} = GettextSigils.Interpolation.parse!(ast)
-    quote do: {unquote(msgid), unquote(bindings)}
+    GettextSigils.Interpolation.parse!(ast)
   end
 
   defmacrop parse_quoted!(ast) do
