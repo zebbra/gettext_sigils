@@ -2,13 +2,14 @@ defmodule GettextSigils.InterpolationTest do
   use ExUnit.Case
 
   alias GettextSigils.AmbiguousInterpolationError
+  alias GettextSigils.Interpolation
 
   defmacrop parse!(ast) do
-    GettextSigils.Interpolation.parse!(ast)
+    Interpolation.parse!(ast)
   end
 
   defmacrop parse_quoted!(ast) do
-    quote do: GettextSigils.Interpolation.parse!(unquote(Macro.escape(ast)))
+    quote do: Interpolation.parse!(unquote(Macro.escape(ast)))
   end
 
   describe "simple variables" do

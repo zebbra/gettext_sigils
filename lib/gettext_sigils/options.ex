@@ -1,14 +1,16 @@
 defmodule GettextSigils.Options do
   @moduledoc false
 
-  @valid_keys [:domain, :context, :modifiers]
+  @valid_keys [:domain, :context, :modifiers, :pluralization]
   @valid_modifier_keys [:domain, :context]
+  @valid_pluralization_keys [:separator]
 
   def validate!(opts) do
     validate_unknown_keys!(opts)
     validate_domain!(opts)
     validate_context!(opts)
     validate_modifiers!(Keyword.get(opts, :modifiers, []))
+    validate_pluralization!(Keyword.get(opts, :pluralization, []))
   end
 
   defp validate_unknown_keys!(opts) do
@@ -65,5 +67,34 @@ defmodule GettextSigils.Options do
               "modifier #{inspect(key)}: domain cannot be nil, Gettext always requires a domain"
       end
     end
+  end
+
+  defp validate_pluralization!(opts) when not is_list(opts) do
+    raise ArgumentError, "pluralization must be a keyword list, got: #{inspect(opts)}"
+  end
+
+  defp validate_pluralization!(opts) do
+    if !Keyword.keyword?(opts) do
+      raise ArgumentError, "pluralization must be a keyword list, got: #{inspect(opts)}"
+    end
+
+    unknown_keys = Keyword.keys(opts) -- @valid_pluralization_keys
+
+    if unknown_keys != [] do
+      raise ArgumentError,
+            "unknown pluralization options #{inspect(unknown_keys)}, expected: #{inspect(@valid_pluralization_keys)}"
+    end
+
+    case Keyword.fetch(opts, :separator) do
+      {:ok, sep} when is_binary(sep) and byte_size(sep) > 0 -> :ok
+      {:ok, other} -> raise ArgumentError, "separator must be a non-empty string, got: #{inspect(other)}"
+      :error -> :ok
+    end
+  end
+
+  def pluralization_separator(opts) do
+    opts
+    |> Keyword.get(:pluralization, [])
+    |> Keyword.get_lazy(:separator, &GettextSigils.Pluralization.default_separator/0)
   end
 end

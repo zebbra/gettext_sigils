@@ -78,4 +78,38 @@ defmodule GettextSigils.OptionsTest do
       end
     end
   end
+
+  describe "validate!/1 pluralization options" do
+    test "accepts valid pluralization options" do
+      Options.validate!(pluralization: [separator: "||"])
+    end
+
+    test "accepts empty pluralization options" do
+      Options.validate!(pluralization: [])
+    end
+
+    test "raises when separator is not a binary" do
+      assert_raise ArgumentError, ~r/separator must be a non-empty string/, fn ->
+        Options.validate!(pluralization: [separator: 123])
+      end
+    end
+
+    test "raises when separator is an empty string" do
+      assert_raise ArgumentError, ~r/separator must be a non-empty string/, fn ->
+        Options.validate!(pluralization: [separator: ""])
+      end
+    end
+
+    test "raises on unknown pluralization keys" do
+      assert_raise ArgumentError, ~r/unknown pluralization options.*foo/, fn ->
+        Options.validate!(pluralization: [foo: "bar"])
+      end
+    end
+
+    test "raises when pluralization is not a keyword list" do
+      assert_raise ArgumentError, ~r/pluralization must be a keyword list/, fn ->
+        Options.validate!(pluralization: "bad")
+      end
+    end
+  end
 end
