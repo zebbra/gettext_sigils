@@ -7,6 +7,11 @@ defmodule GettextSigils.DomainContextTest do
     test "uses default domain, no context" do
       assert ~t"example" == "default: example"
     end
+
+    test "plural uses default domain" do
+      count = 2
+      assert ~t"One item‖#{count} items" == "default: 2 items"
+    end
   end
 
   describe "domain option" do

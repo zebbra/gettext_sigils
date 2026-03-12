@@ -169,6 +169,42 @@ gettext("Valid: %{x} != %{y}", x: Foo.bar(), y: foo_bar)
 
 ## Pluralization
 
-Gettext pluralization (`ngettext`, ...) is currently **not** supported. See open [issue #3](https://github.com/zebbra/gettext_sigils/issues/3).
+Use the `‖` separator to split singular and plural forms. The `count` binding determines which form Gettext selects at runtime:
+
+```elixir
+~t"One error‖#{count} errors"
+# with count = 1 => "One error"
+# with count = 3 => "3 errors"
+```
+
+You can use explicit key syntax to bind `count` to an arbitrary expression:
+
+```elixir
+~t"One user‖#{count :: length(users)} users"
+```
+
+Under the hood, the sigil maps to Gettext's `dpngettext/6`:
+
+```elixir
+~t"One error‖#{count} errors"
+# =>
+dpngettext("default", nil, "One error", "%{count} errors", count)
+```
+
+`count` must appear as a binding in at least one of the singular or plural parts.
+
+### Custom separator
+
+The separator defaults to `‖` (U+2016 DOUBLE VERTICAL LINE). You can override it globally via application config or per-module:
+
+```elixir
+# Application config
+config :gettext_sigils, :sigils, pluralization: [separator: "||"]
+
+# Per-module
+use GettextSigils,
+  backend: MyApp.Gettext,
+  sigils: [pluralization: [separator: "||"]]
+```
 
 <!-- MDOC -->
