@@ -30,15 +30,13 @@ defmodule GettextSigils.Interpolation do
       ~t"#{name} is #{name}"
       #=> msgid: "%{name} is %{name}", bindings: [name: name]
 
-  When the same key appears with different value expressions, a
-  `AmbiguousInterpolationError` is raised, prompting the user to provide
-  distinct explicit keys:
+  When the same key appears with different value expressions, an
+  `ArgumentError` is raised, prompting the user to provide distinct explicit
+  keys:
 
       ~t"#{x :: foo} #{x :: bar}"
-      #=> ** (AmbiguousInterpolationError) ambiguous interpolation key "x" with different values
+      #=> ** (ArgumentError) ambiguous interpolation key "x" with different values
   """
-
-  alias GettextSigils.AmbiguousInterpolationError
 
   @fallback_binding_key "var"
 
@@ -70,8 +68,16 @@ defmodule GettextSigils.Interpolation do
     msgid = IO.iodata_to_binary(msgid_parts)
 
     case deduplicate_bindings(bindings) do
-      {unique_bindings, []} -> {msgid, unique_bindings}
-      {_, ambiguous} -> raise AmbiguousInterpolationError, expr: expr, msgid: msgid, keys: ambiguous
+      {unique_bindings, []} ->
+        {msgid, unique_bindings}
+
+      {_, ambiguous} ->
+        raise ArgumentError,
+              "Expression results in ambiguous Gettext interpolation keys:\n\n" <>
+                "  expr: ~t#{Macro.to_string(expr)}\n" <>
+                "  msgid: \"#{msgid}\" (ambiguous keys: #{Enum.join(ambiguous, ", ")})\n\n" <>
+                "use the \"::\" operator to define a unique key-value binding, " <>
+                "e.g. ~t\"\#{key :: <binding>}\"\n"
     end
   end
 
@@ -176,8 +182,8 @@ defmodule GettextSigils.Interpolation do
   end
 
   # Fallback for expressions that don't map to a meaningful name.
-  # Multiple occurrences will trigger an AmbiguousInterpolationError,
-  # prompting the user to provide explicit keys via the `::` syntax.
+  # Multiple occurrences will trigger an ArgumentError, prompting the
+  # user to provide explicit keys via the `::` syntax.
   defp binding_key_from_expr(_expr), do: @fallback_binding_key
 
   # Normalize binding keys to lowercase strings

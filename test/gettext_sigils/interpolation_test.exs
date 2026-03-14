@@ -1,8 +1,6 @@
 defmodule GettextSigils.InterpolationTest do
   use ExUnit.Case
 
-  alias GettextSigils.AmbiguousInterpolationError
-
   defmacrop parse!(ast) do
     GettextSigils.Interpolation.parse!(ast)
   end
@@ -88,7 +86,7 @@ defmodule GettextSigils.InterpolationTest do
     end
 
     test "multiple literal values raises due to ambiguous keys" do
-      assert_raise AmbiguousInterpolationError, ~r/ambiguous.*interpolation keys/i, fn ->
+      assert_raise ArgumentError, ~r/ambiguous.*interpolation keys/i, fn ->
         parse_quoted!("one: #{1} two: #{:foo}")
       end
     end
@@ -118,7 +116,7 @@ defmodule GettextSigils.InterpolationTest do
     end
 
     test "same key with different values raises" do
-      assert_raise AmbiguousInterpolationError, ~r/ambiguous.*interpolation keys/i, fn ->
+      assert_raise ArgumentError, ~r/ambiguous.*interpolation keys/i, fn ->
         parse_quoted!("#{foo :: :a} #{foo :: :b}")
       end
     end

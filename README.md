@@ -135,7 +135,7 @@ Duplicate keys are allowed if they refer to the same expression. Otherwise, an a
 
 # This is NOT allowed:
 ~t"This is invalid: #{Foo.bar()} != #{foo.bar}"
-# => raises AmbiguousInterpolationError (foo_bar)
+# => raises ArgumentError (foo_bar)
 ```
 
 Use explicit keys to disambiguate between expressions with the same key.

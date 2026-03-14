@@ -70,11 +70,7 @@ defmodule GettextSigils.MixProject do
     [
       main: "GettextSigils",
       extras: ["README.md", "CHANGELOG.md"],
-      groups_for_modules: [
-        Exceptions: [
-          GettextSigils.AmbiguousInterpolationError
-        ]
-      ]
+      groups_for_modules: []
     ]
   end
 
