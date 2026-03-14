@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.2.0](https://github.com/zebbra/gettext_sigils/compare/v0.1.1...v0.2.0) (2026-03-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* replace AmbiguousInterpolationError with ArgumentError
+* duplicate keys with different values now raise instead of being auto-suffixed
+
+### Features
+
+* raise on ambiguous interpolation keys instead of auto-suffixing ([ce7096f](https://github.com/zebbra/gettext_sigils/commit/ce7096f3fc935d7f7120bfe3419e2fd10dad7dcc))
+
+
+### Code Refactoring
+
+* replace AmbiguousInterpolationError with ArgumentError ([983ce67](https://github.com/zebbra/gettext_sigils/commit/983ce67041dc87874163b171a8cd0e68cdf576d5))
+
 ## [0.1.1](https://github.com/zebbra/gettext_sigils/compare/v0.1.0...v0.1.1) (2026-03-09)
 
 
