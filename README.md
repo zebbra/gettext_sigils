@@ -27,7 +27,7 @@ end
 
 ## Basic Usage
 
-To use the `~t` sigil in your module, just use `GettextSigils` instead of the default `Gettext` module:
+To use the `~t` sigil in your module, just use `GettextSigils` instead of the default `Gettext` module (for example in `MyAppWeb.html_helpers/0` when using Phoenix):
 
 ```elixir
 # replace this
@@ -100,13 +100,6 @@ defmodule MyApp.Frontend do
     ~t"Oops"em            # domain: "errors",   context: "MyApp.Frontend"
   end
 end
-```
-
-Multiple modifiers can be combined and are applied left to right — the last modifier to set a given option wins:
-
-```elixir
-~t"hello"eg   # if `g` sets domain: "default", the domain is "default" (not "errors")
-~t"hello"ge   # if `e` sets domain: "errors", the domain is "errors"
 ```
 
 Each modifier key must be a single lowercase letter (`a`–`z`) and accepts the options `:domain` and `:context`. Using an undefined modifier results in a compile-time error.
