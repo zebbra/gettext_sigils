@@ -1,3 +1,8 @@
+[![CI](https://github.com/zebbra/gettext_sigils/actions/workflows/ci.yml/badge.svg)](https://github.com/zebbra/gettext_sigils/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Hex version badge](https://img.shields.io/hexpm/v/gettext_sigils.svg)](https://hex.pm/packages/gettext_sigils)
+[![Hexdocs badge](https://img.shields.io/badge/docs-hexdocs-purple)](https://hexdocs.pm/gettext_sigils)
+
 # Gettext Sigils
 
 <!-- MDOC -->
