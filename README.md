@@ -17,13 +17,17 @@ gettext("Hello, %{name}", name: user.name)
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed
 by adding `gettext_sigils` to your list of dependencies in `mix.exs`:
 
+<!-- x-release-please-start-version -->
+
 ```elixir
 def deps do
   [
-    {:gettext_sigils, "~> 0.1.0"}
+    {:gettext_sigils, "~> 0.2.0"}
   ]
 end
 ```
+
+<!-- x-release-please-end -->
 
 ## Basic Usage
 
