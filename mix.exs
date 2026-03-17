@@ -44,15 +44,16 @@ defmodule GettextSigils.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:credo, "~> 1.0", only: [:dev, :test], runtime: false},
       {:gettext, "~> 1.0"},
+      {:igniter, "~> 0.7", optional: true},
       {:tidewave, "~> 0.5", only: [:dev]},
       {:usage_rules, "~> 1.0", only: [:dev]},
-      {:igniter, "~> 0.6", only: [:dev]},
       {:bandit, "~> 1.0", only: [:dev]},
+      {:credo, "~> 1.0", only: [:dev, :test], runtime: false},
       {:styler, "~> 1.11", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.37", only: :dev, runtime: false},
-      {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false}
+      {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false},
+      {:phx_new, "~> 1.7", optional: true, only: [:dev, :test]}
     ]
   end
 
