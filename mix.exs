@@ -68,8 +68,16 @@ defmodule GettextSigils.MixProject do
 
   defp docs do
     [
-      main: "GettextSigils",
-      extras: ["README.md", "CHANGELOG.md"],
+      main: "readme",
+      source_ref: "v#{@version}",
+      extras: [
+        {"README.md", title: "Home"},
+        {"CHANGELOG.md", title: "Changelog"},
+        "guides/llm.md"
+      ],
+      groups_for_extras: [
+        Guides: Path.wildcard("guides/*.md")
+      ],
       groups_for_modules: []
     ]
   end
@@ -78,7 +86,7 @@ defmodule GettextSigils.MixProject do
     [
       name: "gettext_sigils",
       licenses: ["MIT"],
-      files: ~w(lib .formatter.exs mix.exs README.md LICENSE),
+      files: ~w(lib usage-rules.md usage-rules .formatter.exs mix.exs README.md LICENSE),
       links: %{
         "GitHub" => @github_url
       }

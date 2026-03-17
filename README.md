@@ -153,9 +153,13 @@ Explicit keys can be used with the `::` syntax for more control to disambiguate 
 ~t"Valid: #{x :: Foo.bar()} != #{y :: foo_bar}"
 # => gettext("Valid: %{x} != %{y}", x: Foo.bar(), y: foo_bar)
 ```
-
+  
 ## Pluralization
 
 Gettext pluralization (`ngettext`, ...) is currently **not** supported. See open [issue #3](https://github.com/zebbra/gettext_sigils/issues/3).
+
+## Usage Rules
+
+GettextSigils ships with usage rules and skills for LLM coding agents (Claude Code, Cursor, Codex, etc.) via the [`usage_rules`](https://hexdocs.pm/usage_rules) library. See the [LLM guide](guides/llm.md) for setup instructions.
 
 <!-- MDOC -->
