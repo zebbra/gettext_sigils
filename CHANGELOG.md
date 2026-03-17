@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.1](https://github.com/zebbra/gettext_sigils/compare/v0.2.0...v0.2.1) (2026-03-17)
+
+
+### Features
+
+* add `mix gettext_sigils.install` igniter task ([ec7975a](https://github.com/zebbra/gettext_sigils/commit/ec7975aaa53780ef61306588ec4be897ad04721d))
+* add `mix gettext_sigils.install` igniter task ([b2f55ec](https://github.com/zebbra/gettext_sigils/commit/b2f55ec590ca1fb7ce0276171b4d7f38252da000)), closes [#14](https://github.com/zebbra/gettext_sigils/issues/14)
+* add usage rules and localization skill for LLM agents ([8af463c](https://github.com/zebbra/gettext_sigils/commit/8af463c0969312769fbe4cd18f1acb4118b34d69)), closes [#13](https://github.com/zebbra/gettext_sigils/issues/13)
+
 ## [0.2.0](https://github.com/zebbra/gettext_sigils/compare/v0.1.1...v0.2.0) (2026-03-14)
 
 

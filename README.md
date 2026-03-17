@@ -27,7 +27,7 @@ by adding `gettext_sigils` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:gettext_sigils, "~> 0.2.0"}
+    {:gettext_sigils, "~> 0.2.1"}
   ]
 end
 ```
