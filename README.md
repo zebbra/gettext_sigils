@@ -1,3 +1,8 @@
+[![CI](https://github.com/zebbra/gettext_sigils/actions/workflows/ci.yml/badge.svg)](https://github.com/zebbra/gettext_sigils/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Hex version badge](https://img.shields.io/hexpm/v/gettext_sigils.svg)](https://hex.pm/packages/gettext_sigils)
+[![Hexdocs badge](https://img.shields.io/badge/docs-hexdocs-purple)](https://hexdocs.pm/gettext_sigils)
+
 # Gettext Sigils
 
 <!-- MDOC -->
@@ -17,17 +22,21 @@ gettext("Hello, %{name}", name: user.name)
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed
 by adding `gettext_sigils` to your list of dependencies in `mix.exs`:
 
+<!-- x-release-please-start-version -->
+
 ```elixir
 def deps do
   [
-    {:gettext_sigils, "~> 0.1.0"}
+    {:gettext_sigils, "~> 0.2.1"}
   ]
 end
 ```
 
+<!-- x-release-please-end -->
+
 ## Basic Usage
 
-To use the `~t` sigil in your module, just use `GettextSigils` instead of the default `Gettext` module:
+To use the `~t` sigil in your module, just use `GettextSigils` instead of the default `Gettext` module (for example in `MyAppWeb.html_helpers/0` when using Phoenix):
 
 ```elixir
 # replace this
@@ -102,13 +111,6 @@ defmodule MyApp.Frontend do
 end
 ```
 
-Multiple modifiers can be combined and are applied left to right — the last modifier to set a given option wins:
-
-```elixir
-~t"hello"eg   # if `g` sets domain: "default", the domain is "default" (not "errors")
-~t"hello"ge   # if `e` sets domain: "errors", the domain is "errors"
-```
-
 Each modifier key must be a single lowercase letter (`a`–`z`) and accepts the options `:domain` and `:context`. Using an undefined modifier results in a compile-time error.
 
 ## Interpolation
@@ -116,57 +118,42 @@ Each modifier key must be a single lowercase letter (`a`–`z`) and accepts the 
 Gettext [interpolation](https://hexdocs.pm/gettext/Gettext.html#module-interpolation) works similar to regular Elixir strings. Keys are derived automatically from the expression:
 
 ```elixir
-# Variables and dot access -> key derived from expression
 ~t"The #{fruit.name} is #{color}"
-# =>
-gettext("The %{fruit_name} is %{color}", fruit_name: fruit.name, color: color)
+# => gettext("The %{fruit_name} is %{color}", fruit_name: fruit.name, color: color)
 
-# Local and remote function calls -> key derived from received and function name
 ~t"Status: #{String.upcase(status)}"
-# =>
-gettext("Status: %{string_upcase}", string_upcase: String.upcase(status))
+# => gettext("Status: %{string_upcase}", string_upcase: String.upcase(status))
 
-# Other expressions -> generic "var" key
 ~t"Value: #{1 + 2}"
-# =>
-gettext("Value: %{var}", var: 1 + 2)
+# => gettext("Value: %{var}", var: 1 + 2)
 ```
+
+Duplicate keys are allowed if they refer to the same expression. Otherwise, an ambiguous key error is raised.
+
+```elixir
+# This is allowed:
+~t"#{name} is #{name}"
+# => gettext("%{name} is %{name}", name: name)
+
+# This is NOT allowed:
+~t"This is invalid: #{Foo.bar()} != #{foo.bar}"
+# => raises ArgumentError (foo_bar)
+```
+
+Use explicit keys to disambiguate between expressions with the same key.
 
 ### Explicit keys
 
-Explicit keys can be used with the `::` syntax for more control to disambiguate between multiple variables with the same name:
-
-Explicit key with `::` syntax:
+Explicit keys can be used with the `::` syntax for more control to disambiguate between multiple bindings with the same key:
 
 ```elixir
 ~t"Order status: #{status :: order_status(resp[field])}"
-# =>
-gettext("Order status: %{status}", status: order_status(resp[field]))
-```
+# => gettext("Order status: %{status}", status: order_status(resp[field]))
 
-Duplicate keys are allowed if they refer to the same expression:
-
-```elixir
-~t"#{name} is #{name}"
-# => 
-gettext("%{name} is %{name}", name: name)
-```
-
-Ambiguous keys raise an error:
-
-```elixir
-~t"Invalid: #{Foo.bar()} != #{foo_bar}"
-# => raises AmbiguousInterpolationError
-```
-
-Use `::` to disambiguate between expressions with the same key:
-
-```elixir
 ~t"Valid: #{x :: Foo.bar()} != #{y :: foo_bar}"
-# =>
-gettext("Valid: %{x} != %{y}", x: Foo.bar(), y: foo_bar)
+# => gettext("Valid: %{x} != %{y}", x: Foo.bar(), y: foo_bar)
 ```
-
+  
 ## Pluralization
 
 Use the `‖` separator to split singular and plural forms. The `count` binding determines which form Gettext selects at runtime:
@@ -206,5 +193,13 @@ use GettextSigils,
   backend: MyApp.Gettext,
   sigils: [pluralization: [separator: "||"]]
 ```
+
+## Usage Rules
+
+GettextSigils ships with usage rules and skills for LLM coding agents (Claude Code, Cursor, Codex, etc.) via the [`usage_rules`](https://hexdocs.pm/usage_rules) library. See the [LLM guide](guides/llm.md) for setup instructions.
+
+## Sponsoring
+
+Shoutout to my employer 🦓 [zebbra](https://zebbra.ch) for allowing me to make this public. Need Elixir expertise made in 🇨🇭 Switzerland? Feel free to [reach out](https://zebbra.ch/contact).
 
 <!-- MDOC -->

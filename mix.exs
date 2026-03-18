@@ -5,7 +5,7 @@ defmodule GettextSigils.MixProject do
   A ~t sigil for Gettext translations, to reduce boilerplate and improve readability.
   """
 
-  @version "0.1.1"
+  @version "0.2.1"
   @github_url "https://github.com/zebbra/gettext_sigils"
 
   def project do
@@ -44,15 +44,16 @@ defmodule GettextSigils.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:credo, "~> 1.0", only: [:dev, :test], runtime: false},
       {:gettext, "~> 1.0"},
+      {:igniter, "~> 0.7", optional: true},
       {:tidewave, "~> 0.5", only: [:dev]},
       {:usage_rules, "~> 1.0", only: [:dev]},
-      {:igniter, "~> 0.6", only: [:dev]},
       {:bandit, "~> 1.0", only: [:dev]},
+      {:credo, "~> 1.0", only: [:dev, :test], runtime: false},
       {:styler, "~> 1.11", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.37", only: :dev, runtime: false},
-      {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false}
+      {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false},
+      {:phx_new, "~> 1.7", optional: true, only: [:dev, :test]}
     ]
   end
 
@@ -68,13 +69,17 @@ defmodule GettextSigils.MixProject do
 
   defp docs do
     [
-      main: "GettextSigils",
-      extras: ["README.md", "CHANGELOG.md"],
-      groups_for_modules: [
-        Exceptions: [
-          GettextSigils.AmbiguousInterpolationError
-        ]
-      ]
+      main: "readme",
+      source_ref: "v#{@version}",
+      extras: [
+        {"README.md", title: "Home"},
+        {"CHANGELOG.md", title: "Changelog"},
+        "guides/llm.md"
+      ],
+      groups_for_extras: [
+        Guides: Path.wildcard("guides/*.md")
+      ],
+      groups_for_modules: []
     ]
   end
 
@@ -82,7 +87,7 @@ defmodule GettextSigils.MixProject do
     [
       name: "gettext_sigils",
       licenses: ["MIT"],
-      files: ~w(lib .formatter.exs mix.exs README.md LICENSE),
+      files: ~w(lib usage-rules.md usage-rules .formatter.exs mix.exs README.md LICENSE),
       links: %{
         "GitHub" => @github_url
       }

@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.2.1](https://github.com/zebbra/gettext_sigils/compare/v0.2.0...v0.2.1) (2026-03-17)
+
+
+### Features
+
+* add `mix gettext_sigils.install` igniter task ([ec7975a](https://github.com/zebbra/gettext_sigils/commit/ec7975aaa53780ef61306588ec4be897ad04721d))
+* add `mix gettext_sigils.install` igniter task ([b2f55ec](https://github.com/zebbra/gettext_sigils/commit/b2f55ec590ca1fb7ce0276171b4d7f38252da000)), closes [#14](https://github.com/zebbra/gettext_sigils/issues/14)
+* add usage rules and localization skill for LLM agents ([8af463c](https://github.com/zebbra/gettext_sigils/commit/8af463c0969312769fbe4cd18f1acb4118b34d69)), closes [#13](https://github.com/zebbra/gettext_sigils/issues/13)
+
+## [0.2.0](https://github.com/zebbra/gettext_sigils/compare/v0.1.1...v0.2.0) (2026-03-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* replace AmbiguousInterpolationError with ArgumentError
+* duplicate keys with different values now raise instead of being auto-suffixed
+
+### Features
+
+* raise on ambiguous interpolation keys instead of auto-suffixing ([ce7096f](https://github.com/zebbra/gettext_sigils/commit/ce7096f3fc935d7f7120bfe3419e2fd10dad7dcc))
+
+
+### Code Refactoring
+
+* replace AmbiguousInterpolationError with ArgumentError ([983ce67](https://github.com/zebbra/gettext_sigils/commit/983ce67041dc87874163b171a8cd0e68cdf576d5))
+
 ## [0.1.1](https://github.com/zebbra/gettext_sigils/compare/v0.1.0...v0.1.1) (2026-03-09)
 
 
