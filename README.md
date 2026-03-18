@@ -156,10 +156,10 @@ Explicit keys can be used with the `::` syntax for more control to disambiguate 
   
 ## Pluralization
 
-Use the `‖` separator to split singular and plural forms. The `count` binding determines which form Gettext selects at runtime:
+Use the `||` separator to split singular and plural forms. The `count` binding determines which form Gettext selects at runtime:
 
 ```elixir
-~t"One error‖#{count} errors"
+~t"One error||#{count} errors"
 # with count = 1 => "One error"
 # with count = 3 => "3 errors"
 ```
@@ -167,13 +167,13 @@ Use the `‖` separator to split singular and plural forms. The `count` binding 
 You can use explicit key syntax to bind `count` to an arbitrary expression:
 
 ```elixir
-~t"One user‖#{count :: length(users)} users"
+~t"One user||#{count :: length(users)} users"
 ```
 
 Under the hood, the sigil maps to Gettext's `dpngettext/6`:
 
 ```elixir
-~t"One error‖#{count} errors"
+~t"One error||#{count} errors"
 # =>
 dpngettext("default", nil, "One error", "%{count} errors", count)
 ```
@@ -182,16 +182,16 @@ dpngettext("default", nil, "One error", "%{count} errors", count)
 
 ### Custom separator
 
-The separator defaults to `‖` (U+2016 DOUBLE VERTICAL LINE). You can override it globally via application config or per-module:
+The separator defaults to `||` (double pipe). You can override it globally via application config or per-module:
 
 ```elixir
 # Application config
-config :gettext_sigils, :sigils, pluralization: [separator: "||"]
+config :gettext_sigils, :sigils, pluralization: [separator: "‖"]
 
 # Per-module
 use GettextSigils,
   backend: MyApp.Gettext,
-  sigils: [pluralization: [separator: "||"]]
+  sigils: [pluralization: [separator: "‖"]]
 ```
 
 ## Usage Rules

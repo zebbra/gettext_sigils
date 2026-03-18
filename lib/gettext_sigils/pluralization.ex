@@ -8,26 +8,26 @@ defmodule GettextSigils.Pluralization do
 
   ## Separator
 
-  The default separator is `‖` (U+2016 DOUBLE VERTICAL LINE). It can be changed
-  per-module or globally:
+  The default separator is `||` (double pipe). It can be changed per-module or
+  globally:
 
   ```elixir
   # config/config.exs
-  config :gettext_sigils, pluralization: [separator: "||"]
+  config :gettext_sigils, pluralization: [separator: "‖"]
 
   # per-module
   use GettextSigils,
     backend: MyApp.Gettext,
-    sigils: [pluralization: [separator: "||"]]
+    sigils: [pluralization: [separator: "‖"]]
   ```
 
   ## Examples
 
   ```elixir
-  ~t"One error‖#{count} errors"
+  ~t"One error||#{count} errors"
   #=> dpngettext("default", nil, "One error", "%{count} errors", count)
 
-  ~t"One user‖#{count :: length(users)} users"
+  ~t"One user||#{count :: length(users)} users"
   #=> dpngettext("default", nil, "One user", "%{count} users", length(users))
   ```
 
