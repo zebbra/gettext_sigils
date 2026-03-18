@@ -2,9 +2,9 @@ defmodule GettextSigils.Pluralization do
   @moduledoc ~S"""
   Splits a parsed `~t` sigil into singular and plural forms for Gettext pluralization.
 
-  When the `msgid` contains a separator character, it is split into two parts —
-  a singular and a plural form — and the `:count` binding is extracted to be
-  passed as the `n` argument to `dpngettext/6`.
+  Pluralization is activated by the `N` modifier. When present, the message is
+  split on the separator into a singular and a plural form, and the `:count`
+  binding is extracted to be passed as the `n` argument to `dpngettext/6`.
 
   ## Separator
 
@@ -13,21 +13,21 @@ defmodule GettextSigils.Pluralization do
 
   ```elixir
   # config/config.exs
-  config :gettext_sigils, pluralization: [separator: "‖"]
+  config :gettext_sigils, pluralization: [separator: "✂️"]
 
   # per-module
   use GettextSigils,
     backend: MyApp.Gettext,
-    sigils: [pluralization: [separator: "‖"]]
+    sigils: [pluralization: [separator: "✂️"]]
   ```
 
   ## Examples
 
   ```elixir
-  ~t"One error||#{count} errors"
+  ~t"One error||#{count} errors"N
   #=> dpngettext("default", nil, "One error", "%{count} errors", count)
 
-  ~t"One user||#{count :: length(users)} users"
+  ~t"One user||#{count :: length(users)} users"N
   #=> dpngettext("default", nil, "One user", "%{count} users", length(users))
   ```
 
@@ -38,11 +38,12 @@ defmodule GettextSigils.Pluralization do
   @type singular() :: {binary(), Keyword.t()}
   @type plural() :: {binary(), binary(), Macro.t(), Keyword.t()}
 
-  @spec maybe_split!(singular(), binary()) :: singular() | plural()
-  def maybe_split!({msgid, bindings}, separator) do
+  @spec split!(singular(), binary()) :: plural()
+  def split!({msgid, bindings}, separator) do
     case String.split(msgid, separator) do
       [_single] ->
-        {msgid, bindings}
+        raise ArgumentError,
+              "the N modifier requires a separator #{inspect(separator)} in the message, but none was found"
 
       [singular, plural] ->
         {count, remaining_bindings} = extract_count!(bindings)

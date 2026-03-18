@@ -156,10 +156,10 @@ Explicit keys can be used with the `::` syntax for more control to disambiguate 
   
 ## Pluralization
 
-Use the `||` separator to split singular and plural forms. The `count` binding determines which form Gettext selects at runtime:
+Use the `N` modifier and the `||` separator to split singular and plural forms. The `count` binding determines which form Gettext selects at runtime:
 
 ```elixir
-~t"One error||#{count} errors"
+~t"One error||#{count} errors"N
 # with count = 1 => "One error"
 # with count = 3 => "3 errors"
 ```
@@ -167,18 +167,20 @@ Use the `||` separator to split singular and plural forms. The `count` binding d
 You can use explicit key syntax to bind `count` to an arbitrary expression:
 
 ```elixir
-~t"One user||#{count :: length(users)} users"
+~t"One user||#{count :: length(users)} users"N
 ```
 
 Under the hood, the sigil maps to Gettext's `dpngettext/6`:
 
 ```elixir
-~t"One error||#{count} errors"
+~t"One error||#{count} errors"N
 # =>
 dpngettext("default", nil, "One error", "%{count} errors", count)
 ```
 
-`count` must appear as a binding in at least one of the singular or plural parts.
+`count` must appear as a binding in at least one of the singular or plural parts. Using `N` without a separator in the message raises an `ArgumentError`. Without the `N` modifier, `||` is treated as literal text.
+
+The `N` modifier can be combined with other modifiers: `~t"One error||#{count} errors"eN` uses the `errors` domain.
 
 ### Custom separator
 
@@ -186,12 +188,12 @@ The separator defaults to `||` (double pipe). You can override it globally via a
 
 ```elixir
 # Application config
-config :gettext_sigils, :sigils, pluralization: [separator: "‖"]
+config :gettext_sigils, pluralization: [separator: "✂️"]
 
 # Per-module
 use GettextSigils,
   backend: MyApp.Gettext,
-  sigils: [pluralization: [separator: "‖"]]
+  sigils: [pluralization: [separator: "<plural>"]]
 ```
 
 ## Usage Rules

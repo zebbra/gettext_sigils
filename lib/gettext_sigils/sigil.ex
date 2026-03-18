@@ -20,14 +20,21 @@ defmodule GettextSigils.Sigil do
   @spec sigil_t(Macro.t(), charlist()) :: Macro.t()
   defmacro sigil_t(term, modifiers) do
     opts = Module.get_attribute(__CALLER__.module, :__gettext_sigils__)
-    separator = Options.pluralization_separator(opts)
-
-    {domain, context} = Modifiers.resolve!(modifiers, opts)
+    {domain, context, plural?} = Modifiers.resolve!(modifiers, opts)
 
     term
     |> Interpolation.parse!()
-    |> Pluralization.maybe_split!(separator)
+    |> maybe_pluralize!(opts, plural?)
     |> translate(domain, context)
+  end
+
+  defp maybe_pluralize!(parsed, _opts, false = _plural?) do
+    parsed
+  end
+
+  defp maybe_pluralize!(parsed, opts, true = _plural?) do
+    separator = Options.pluralization_separator(opts)
+    Pluralization.split!(parsed, separator)
   end
 
   defp translate({msgid, bindings}, domain, context) do

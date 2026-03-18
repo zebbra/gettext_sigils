@@ -46,24 +46,28 @@ defmodule GettextSigilsTest do
 
   describe "pluralization" do
     test "plural message with count" do
-      assert ~t"One error||#{count :: 1} errors" == "frontend: One error"
-      assert ~t"One error||#{count :: 3} errors" == "frontend: 3 errors"
+      assert ~t"One error||#{count :: 1} errors"N == "frontend: One error"
+      assert ~t"One error||#{count :: 3} errors"N == "frontend: 3 errors"
     end
 
     test "plural with interpolations in both parts" do
       count = 2
       name = "validation"
-      assert ~t"One #{name} error||#{count} #{name} errors" == "frontend: 2 validation errors"
+      assert ~t"One #{name} error||#{count} #{name} errors"N == "frontend: 2 validation errors"
     end
 
     test "plural with count via explicit key" do
       users = [1, 2, 3]
-      assert ~t"One user||#{count :: length(users)} users" == "frontend: 3 users"
+      assert ~t"One user||#{count :: length(users)} users"N == "frontend: 3 users"
     end
 
     test "plural with modifiers" do
       count = 5
-      assert ~t"One error||#{count} errors"e == "errors: 5 errors"
+      assert ~t"One error||#{count} errors"eN == "errors: 5 errors"
+    end
+
+    test "separator is treated as literal without N modifier" do
+      assert ~t"literal || pipe" == "frontend: literal || pipe"
     end
   end
 end
@@ -79,7 +83,7 @@ defmodule GettextSigilsTest.CustomSeparatorTest do
 
     test "splits on custom separator" do
       count = 3
-      assert ~t"One error✂️#{count} errors" == "default: 3 errors"
+      assert ~t"One error✂️#{count} errors"N == "default: 3 errors"
     end
 
     test "does not split on default separator when custom is set" do
