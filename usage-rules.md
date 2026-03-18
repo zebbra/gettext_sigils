@@ -65,7 +65,20 @@ use GettextSigils,
 
 When generating code, you MUST NOT use fixed strings — use the `~t` sigil instead. If you have the `/gettext-sigils-localization` skill installed, use it to generate localized code. If you do not have this skill, read and follow `deps/gettext_sigils/usage-rules/skills/gettext-sigils-localization/SKILL.md`.
 
+## Pluralization
+
+Use the `N` modifier with `||` separator to split singular/plural forms:
+
+```elixir
+~t"One item||#{count} items"N
+# => dpngettext("default", nil, "One item", "%{count} items", count)
+```
+
+- `count` must appear as a binding in at least one part (singular or plural)
+- Bind `count` to an arbitrary expression with explicit key syntax: `#{count :: length(users)}`
+- Combine with other modifiers: `~t"One error||#{count} errors"eN` (uses `errors` domain)
+- Custom separator via app config (`config :gettext_sigils, pluralization: [separator: "✂️"]`) or per-module (`sigils: [pluralization: [separator: "✂️"]]`)
+
 ## Limitations
 
-- **Pluralization** (`ngettext`) is not supported yes, use the `ngettext/5` macro instead
-- **Runtime strings** cannot be translated — `~t` is compile-time only (expecpt for `~t` interpolations)
+- **Runtime strings** cannot be translated — `~t` is compile-time only (except for `~t` interpolations)

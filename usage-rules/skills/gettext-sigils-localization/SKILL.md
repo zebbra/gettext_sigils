@@ -24,8 +24,9 @@ When GettextSigils is installed, all user-facing strings should use the `~t` sig
 
 ### Explore the Gettext Setup
 
-1. Find where `use GettextSigils` is called — in Phoenix apps check `<app>_web.ex` shared helpers, otherwise search `lib/` modules
-2. Note the configured `sigils:` options — especially `:domain`, `:context`, and `:modifiers`
+1. If unfamiliar with GettextSigils syntax (interpolation, modifiers, pluralization, etc.), read `deps/gettext_sigils/usage-rules.md` first — it covers all features concisely
+2. Find where `use GettextSigils` is called — in Phoenix apps check `<app>_web.ex` shared helpers, otherwise search `lib/` modules
+3. Note the configured `sigils:` options — especially `:domain`, `:context`, and `:modifiers`
 
 ### Replace Strings with `~t`
 
