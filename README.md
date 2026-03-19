@@ -156,7 +156,53 @@ Explicit keys can be used with the `::` syntax for more control to disambiguate 
   
 ## Pluralization
 
-Gettext pluralization (`ngettext`, ...) is currently **not** supported. See open [issue #3](https://github.com/zebbra/gettext_sigils/issues/3).
+Use the `N` modifier and the `||` separator to split singular and plural forms. The `count` binding determines which form Gettext selects at runtime:
+
+```elixir
+~t"One error||#{count} errors"N
+# with count = 1 => "One error"
+# with count = 3 => "3 errors"
+```
+
+You can use explicit key syntax to bind `count` to an arbitrary expression:
+
+```elixir
+~t"One user||#{count :: length(users)} users"N
+```
+
+Under the hood, the sigil maps to Gettext's `dpngettext/6`:
+
+```elixir
+~t"One error||#{count} errors"N
+# =>
+dpngettext("default", nil, "One error", "%{count} errors", count)
+```
+
+`count` must appear as a binding in at least one of the singular or plural parts. Using `N` without a separator in the message raises an `ArgumentError`. Without the `N` modifier, `||` is treated as literal text.
+
+The `N` modifier can be combined with other modifiers: `~t"One error||#{count} errors"eN` uses the `errors` domain.
+
+### Custom separator
+
+The separator defaults to `||` (double pipe). You can override it globally via application config or per-module:
+
+```elixir
+# Application config
+config :gettext_sigils, pluralization: [separator: "✂️"]
+
+# Per-module
+use GettextSigils,
+  backend: MyApp.Gettext,
+  sigils: [pluralization: [separator: "<plural>"]]
+```
+
+## Usage Rules
+
+GettextSigils ships with usage rules and skills for LLM coding agents (Claude Code, Cursor, Codex, etc.) via the [`usage_rules`](https://hexdocs.pm/usage_rules) library. See the [LLM guide](guides/llm.md) for setup instructions.
+
+## Sponsoring
+
+Shoutout to my employer 🦓 [zebbra](https://zebbra.ch) for allowing me to make this public. Need Elixir expertise made in 🇨🇭 Switzerland? Feel free to [reach out](https://zebbra.ch/contact).
 
 ## Usage Rules
 
