@@ -1,100 +1,118 @@
 defmodule GettextSigils.Options do
-  @moduledoc false
+  @modifier_value_schema NimbleOptions.new!(
+                           domain: [
+                             type: :any,
+                             doc: "Gettext domain to use when using this modifier."
+                           ],
+                           context: [
+                             type: :any,
+                             doc: "Gettext context to use when using this modifier."
+                           ]
+                         )
 
-  @valid_keys [:domain, :context, :modifiers, :pluralization]
-  @valid_modifier_keys [:domain, :context]
-  @valid_pluralization_keys [:separator]
+  @schema NimbleOptions.new!(
+            domain: [
+              type: :any,
+              doc: "Default Gettext domain within the module that is using `GettextSigils`."
+            ],
+            context: [
+              type: :any,
+              doc: "Default Gettext context within the module that is using `GettextSigils`."
+            ],
+            modifiers: [
+              type: {:list, {:custom, __MODULE__, :validate_modifier, []}},
+              default: [],
+              doc: """
+              A keyword list of options applied when using the `~t` sigil with modifiers.
 
+              The key has to be an atom between `:a` and `:z`. Uppercase modifiers are used by the library (eg. `N` for pluralization).
+
+              Each modifier can define the following options:
+
+              #{NimbleOptions.docs(@modifier_value_schema, nest_level: 1)}
+              """
+            ],
+            pluralization: [
+              type: :keyword_list,
+              default: [],
+              doc: "Pluralization options.",
+              keys: [
+                separator: [
+                  type: {:custom, __MODULE__, :validate_separator, []},
+                  doc: """
+                  The string used to split singular and plural forms. Can also be set globally in the config.
+
+                  ```elixir
+                  config :gettext_sigils, pluralization: [separator: "<plural>"]
+                  ```
+
+                  The default is `"||"` (double pipe).
+                  """
+                ]
+              ]
+            ]
+          )
+
+  @moduledoc """
+  Validates `:sigils` options passed to `use GettextSigils`. All other options are passed through to `use Gettext`.
+
+  ## Options
+
+  #{NimbleOptions.docs(@schema)}
+
+  ## Example
+
+      use GettextSigils,
+        backend: MyApp.Gettext,
+        sigils: [
+          domain: "default",
+          context: "dashboard",
+          modifiers: [
+            e: [domain: "errors"],
+            a: [context: "admin"]
+          ],
+          pluralization: [
+            separator: "||"
+          ]
+        ]
+
+  """
+
+  @modifier_keys Enum.map(?a..?z, &List.to_atom([&1]))
+
+  @doc "Validates the given options or raises a `NimbleOptions.ValidationError` if invalid."
+  @spec validate!(keyword()) :: keyword() | no_return()
   def validate!(opts) do
-    validate_unknown_keys!(opts)
-    validate_domain!(opts)
-    validate_context!(opts)
-    validate_modifiers!(Keyword.get(opts, :modifiers, []))
-    validate_pluralization!(Keyword.get(opts, :pluralization, []))
+    NimbleOptions.validate!(opts, @schema)
   end
 
-  defp validate_unknown_keys!(opts) do
-    invalid_keys = Keyword.keys(opts) -- @valid_keys
-
-    if invalid_keys != [] do
-      raise ArgumentError,
-            "unknown options #{inspect(invalid_keys)}, expected: #{inspect(@valid_keys)}"
-    end
-  end
-
-  defp validate_domain!(opts) do
-    case Keyword.fetch(opts, :domain) do
-      {:ok, domain} when is_binary(domain) -> :ok
-      {:ok, other} -> raise ArgumentError, "domain must be a string, got: #{inspect(other)}"
-      :error -> :ok
-    end
-  end
-
-  defp validate_context!(opts) do
-    case Keyword.fetch(opts, :context) do
-      {:ok, context} when is_binary(context) or is_nil(context) -> :ok
-      {:ok, other} -> raise ArgumentError, "context must be a string or nil, got: #{inspect(other)}"
-      :error -> :ok
-    end
-  end
-
-  defp validate_modifiers!(modifiers) when not is_list(modifiers) do
-    raise ArgumentError, "modifiers must be a keyword list, got: #{inspect(modifiers)}"
-  end
-
-  defp validate_modifiers!(modifiers) do
-    for {key, opts} <- modifiers do
-      if !(Atom.to_string(key) =~ ~r/^[a-z]$/) do
-        raise ArgumentError,
-              "modifier keys must be lowercase letters (a-z), got: #{inspect(key)}"
-      end
-
-      if !Keyword.keyword?(opts) do
-        raise ArgumentError,
-              "modifier #{inspect(key)}: options must be a keyword list, got: #{inspect(opts)}"
-      end
-
-      invalid_keys = Keyword.keys(opts) -- @valid_modifier_keys
-
-      if invalid_keys != [] do
-        raise ArgumentError,
-              "modifier #{inspect(key)}: unknown options #{inspect(invalid_keys)}, " <>
-                "expected: #{inspect(@valid_modifier_keys)}"
-      end
-
-      with {:ok, nil} <- Keyword.fetch(opts, :domain) do
-        raise ArgumentError,
-              "modifier #{inspect(key)}: domain cannot be nil, Gettext always requires a domain"
-      end
-    end
-  end
-
-  defp validate_pluralization!(opts) when not is_list(opts) do
-    raise ArgumentError, "pluralization must be a keyword list, got: #{inspect(opts)}"
-  end
-
-  defp validate_pluralization!(opts) do
-    if !Keyword.keyword?(opts) do
-      raise ArgumentError, "pluralization must be a keyword list, got: #{inspect(opts)}"
-    end
-
-    unknown_keys = Keyword.keys(opts) -- @valid_pluralization_keys
-
-    if unknown_keys != [] do
-      raise ArgumentError,
-            "unknown pluralization options #{inspect(unknown_keys)}, expected: #{inspect(@valid_pluralization_keys)}"
-    end
-
-    case Keyword.fetch(opts, :separator) do
-      {:ok, sep} when is_binary(sep) and byte_size(sep) > 0 -> :ok
-      {:ok, other} -> raise ArgumentError, "separator must be a non-empty string, got: #{inspect(other)}"
-      :error -> :ok
-    end
-  end
-
+  @doc false
   def pluralization_separator(opts) do
     opts
     |> Keyword.get(:pluralization, [])
     |> Keyword.get_lazy(:separator, &GettextSigils.Pluralization.default_separator/0)
+  end
+
+  @doc false
+  def validate_modifier({key, value}) when key in @modifier_keys and is_list(value) do
+    case NimbleOptions.validate(value, @modifier_value_schema) do
+      {:ok, validated} -> {:ok, {key, validated}}
+      {:error, error} -> {:error, "modifier #{inspect(key)}: #{Exception.message(error)}"}
+    end
+  end
+
+  def validate_modifier({key, value}) when key in @modifier_keys do
+    {:error, "modifier #{inspect(key)}: options must be a keyword list, got: #{inspect(value)}"}
+  end
+
+  def validate_modifier({key, _value}) do
+    {:error, "modifier keys must be lowercase letters (a-z), got: #{inspect(key)}"}
+  end
+
+  @doc false
+  def validate_separator(sep) when is_binary(sep) and byte_size(sep) > 0, do: {:ok, sep}
+
+  def validate_separator(value) do
+    {:error, "separator must be a non-empty string, got: #{inspect(value)}"}
   end
 end
