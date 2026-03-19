@@ -16,9 +16,6 @@ defmodule Mix.Tasks.GettextSigils.InstallTest do
     + |      # domain: "example",
     + |      # context: inspect(__MODULE__),
     + |      #
-    + |      # or when used inside a macro (MyAppWeb.html_helpers/0)
-    + |      # context: unquote(inspect(__MODULE__))
-    + |      #
     + |      # modifiers to override domain and/or context per translation:
     + |      modifiers: [
     + |        # e: [domain: "errors"],

@@ -188,7 +188,7 @@ defmodule GettextSigils.Interpolation do
 
   # Normalize binding keys to lowercase strings
   #
-  # [:a, ["b", :C], "D] -> "a_b_c_d"
+  # [:a, ["b", :C], "D"] -> "a_b_c_d"
 
   defp normalize_binding_key(parts) when is_list(parts) do
     Enum.map_join(parts, "_", &normalize_binding_key/1)

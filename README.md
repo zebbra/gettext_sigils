@@ -19,8 +19,19 @@ gettext("Hello, %{name}", name: user.name)
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `gettext_sigils` to your list of dependencies in `mix.exs`:
+### Using igniter
+
+The package provides an [igniter](https://hexdocs.pm/igniter/readme.html) install task for easy installation and setup:
+
+```
+mix igniter.install gettext_sigils
+```
+
+**Note:** This also replaces `use Gettext` with `use GettextSigils` in the project.
+
+### Manually
+
+The package can be installed by adding `gettext_sigils` to your list of dependencies in `mix.exs`:
 
 <!-- x-release-please-start-version -->
 
@@ -51,7 +62,7 @@ You can then use the `~t` sigil instead of the `gettext` macro:
 ```elixir
 ~t"Hello, World!"
 # same as
-gettext("Hello, World")
+gettext("Hello, World!")
 ```
 
 **Note:** The default Gettext macros (`gettext`, `pgettext`, `dgettext`, ...) are still available if required.
@@ -195,14 +206,6 @@ use GettextSigils,
   backend: MyApp.Gettext,
   sigils: [pluralization: [separator: "<plural>"]]
 ```
-
-## Usage Rules
-
-GettextSigils ships with usage rules and skills for LLM coding agents (Claude Code, Cursor, Codex, etc.) via the [`usage_rules`](https://hexdocs.pm/usage_rules) library. See the [LLM guide](guides/llm.md) for setup instructions.
-
-## Sponsoring
-
-Shoutout to my employer 🦓 [zebbra](https://zebbra.ch) for allowing me to make this public. Need Elixir expertise made in 🇨🇭 Switzerland? Feel free to [reach out](https://zebbra.ch/contact).
 
 ## Usage Rules
 

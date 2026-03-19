@@ -27,7 +27,7 @@ defmodule GettextSigilsTest do
   end
 
   test "using the module with invalid options" do
-    assert_raise ArgumentError, ~r/unknown options \[:dummy\]/, fn ->
+    assert_raise NimbleOptions.ValidationError, ~r/unknown options \[:dummy\]/, fn ->
       defmodule Example do
         @moduledoc false
         use GettextSigils,

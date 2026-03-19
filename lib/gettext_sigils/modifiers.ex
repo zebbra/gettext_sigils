@@ -7,7 +7,7 @@ defmodule GettextSigils.Modifiers do
   Resolves the given charlist of sigil modifiers to a Gettext domain, context,
   and pluralization flag, returned as `{domain, context, plural?}`.
 
-  The built-in `N` modifier enables pluralization. All other modifiers (lowercase
+  The built-in `#{inspect(@plural_modifier)}` modifier enables pluralization. All other modifiers (lowercase
   `a`–`z`) are resolved against user-defined modifier definitions.
   """
 

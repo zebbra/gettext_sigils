@@ -36,7 +36,7 @@ use GettextSigils, backend: MyApp.Gettext
 - Keys are automatically derived from the expression, eg. `name` → `name`, `fruit.name` → `fruit_name`, `String.upcase(x)` → `string_upcase` (other expressions: `var`)
 - Duplicate keys with identical expressions are allowed and merged
 - Duplicate keys with different expressions raise `ArgumentError`
-- Use explicit keys (`#{key :: expr}`) to disambiguate interpolation keys or to 
+- Use explicit keys (`#{key :: expr}`) to disambiguate interpolation keys
 
 ## Domain, Context & Modifiers
 

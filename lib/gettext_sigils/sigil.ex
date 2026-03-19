@@ -13,8 +13,7 @@ defmodule GettextSigils.Sigil do
   @doc """
   Translates the given string using the `Gettext` module.
 
-  Elixir string interpolations are converted to `Gettext` interpolation syntax (e.g. `%{name}`),
-  with their values as bindings.
+  The module has to use `GettextSigils` to import this sigil. See the [README](../../README.md) for more information.
   """
 
   @spec sigil_t(Macro.t(), charlist()) :: Macro.t()

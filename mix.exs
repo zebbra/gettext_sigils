@@ -45,6 +45,7 @@ defmodule GettextSigils.MixProject do
   defp deps do
     [
       {:gettext, "~> 1.0"},
+      {:nimble_options, "~> 1.1"},
       {:igniter, "~> 0.7", optional: true},
       {:tidewave, "~> 0.5", only: [:dev]},
       {:usage_rules, "~> 1.0", only: [:dev]},

@@ -1,22 +1,31 @@
 defmodule GettextSigils do
-  @moduledoc "README.md"
-             |> File.read!()
-             |> String.split("<!-- MDOC -->")
-             |> Enum.fetch!(1)
+  @moduledoc """
+  Imports the `~t` sigil into the module that is using this module, eg.
 
-  @external_resource "README.md"
+  ```elixir
+  use GettextSigils,
+    backend: MyApp.Gettext,
+    sigils: [
+      # ...
+    ]
+  ```
+
+  ## Options
+
+  - `:sigils` - a keyword list of options for the sigil. See `GettextSigils.Options` for the available options.
+  - All other options are passed to `use Gettext` (eg. `:backend`).
+
+  """
 
   defmacro __using__(opts) do
     {sigils_opts, gettext_opts} = Keyword.pop(opts, :sigils, [])
-
-    GettextSigils.Options.validate!(sigils_opts)
 
     quote do
       use Gettext, unquote(gettext_opts)
 
       import GettextSigils.Sigil
 
-      @__gettext_sigils__ unquote(sigils_opts)
+      @__gettext_sigils__ GettextSigils.Options.validate!(unquote(sigils_opts))
     end
   end
 end
