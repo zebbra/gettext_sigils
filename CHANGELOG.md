@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.3.0](https://github.com/zebbra/gettext_sigils/compare/v0.2.1...v0.3.0) (2026-03-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* require N modifier for pluralization
+
+### Features
+
+* add pluralization support ([71019fd](https://github.com/zebbra/gettext_sigils/commit/71019fd6a182dbf8c83afee61b4bd4def02bd726))
+* require N modifier for pluralization ([84a2cff](https://github.com/zebbra/gettext_sigils/commit/84a2cff1c0e59f36ba49dd8f7f499b74224b3a18))
+* update usage rules and skill with pluralization ([a686349](https://github.com/zebbra/gettext_sigils/commit/a686349a3fe276ed540422891c7b65f8380900cb))
+* use || (double pipe) as default separator ([90c0d2b](https://github.com/zebbra/gettext_sigils/commit/90c0d2b9df3fd1e18b9c7073435eeaecf61bc5d9))
+
 ## [0.2.1](https://github.com/zebbra/gettext_sigils/compare/v0.2.0...v0.2.1) (2026-03-17)
 
 
