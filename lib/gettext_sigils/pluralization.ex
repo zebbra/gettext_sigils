@@ -30,6 +30,8 @@ defmodule GettextSigils.Pluralization do
       ~t"#{count} error(s)"N
   """
 
+  @default_separator "||"
+
   @type singular() :: {binary(), Keyword.t()}
   @type plural() :: {binary(), binary(), Macro.t(), Keyword.t()}
 
@@ -70,6 +72,6 @@ defmodule GettextSigils.Pluralization do
   def default_separator do
     :gettext_sigils
     |> Application.get_env(:pluralization, [])
-    |> Keyword.fetch!(:separator)
+    |> Keyword.get(:separator, @default_separator)
   end
 end
