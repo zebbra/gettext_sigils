@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.1](https://github.com/zebbra/gettext_sigils/compare/v0.3.0...v0.3.1) (2026-03-23)
+
+
+### Features
+
+* deprecate separator-based pluralization in favor of shared message ([80ccd68](https://github.com/zebbra/gettext_sigils/commit/80ccd68fc99c6930b1a859ee466713d0f7faab64))
+* deprecate separator-based pluralization in favor of shared message ([e983f23](https://github.com/zebbra/gettext_sigils/commit/e983f23df81d654c5d3369c3f88ab1cbe3829ba5)), closes [#20](https://github.com/zebbra/gettext_sigils/issues/20)
+
 ## [0.3.0](https://github.com/zebbra/gettext_sigils/compare/v0.2.1...v0.3.0) (2026-03-19)
 
 
