@@ -10,7 +10,7 @@ defmodule GettextSigils.DomainContextTest do
 
     test "plural uses default domain" do
       count = 2
-      assert ~t"One item||#{count} items"N == "default: 2 items"
+      assert ~t"#{count} item(s)"N == "default: 2 item(s)"
     end
   end
 

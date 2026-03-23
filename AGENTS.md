@@ -17,7 +17,7 @@
 - **Modifiers**: Single-letter suffixes override domain/context per-call (e.g. `~t"Error"e` uses the `errors` domain)
 - **Modifier composition**: Multiple modifiers apply left-to-right, last wins (`~t"msg"em` ≠ `~t"msg"me`)
 - **Compile-time only**: All transformation happens via macros — zero runtime overhead
-- **Pluralization**: `~t"One item||#{count} items"N` — the `N` modifier splits on separator, emits `dpngettext/6`
+- **Pluralization**: `~t"#{count} item(s)"N` — the `N` modifier uses the message as both `msgid` and `msgid_plural`, emits `dpngettext/6`
 
 ### Architecture
 

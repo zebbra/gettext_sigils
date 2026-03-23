@@ -167,45 +167,67 @@ Explicit keys can be used with the `::` syntax for more control to disambiguate 
   
 ## Pluralization
 
-Use the `N` modifier and the `||` separator to split singular and plural forms. The `count` binding determines which form Gettext selects at runtime:
+Use the `N` modifier for pluralization. The `count` binding determines which form Gettext selects at runtime:
 
 ```elixir
-~t"One error||#{count} errors"N
-# with count = 1 => "One error"
-# with count = 3 => "3 errors"
+~t"#{count} error(s)"N
+# with count = 1 => "1 error(s)"  (untranslated fallback)
+# with count = 3 => "3 error(s)"  (untranslated fallback)
+```
+
+Under the hood, the sigil uses the same message as both `msgid` and `msgid_plural`:
+
+```elixir
+~t"#{count} error(s)"N
+# =>
+dpngettext("default", nil, "%{count} error(s)", "%{count} error(s)", count)
+```
+
+Translators provide distinct singular/plural forms in the `.po` file:
+
+```pot
+msgid "%{count} error(s)"
+msgid_plural "%{count} error(s)"
+msgstr[0] "One error"
+msgstr[1] "%{count} errors"
+```
+
+This enables progressive adoption without changing the message:
+
+```elixir
+# plain string (no gettext)
+"#{count} error(s)"
+
+# gettext without pluralization
+~t"#{count} error(s)"
+
+# gettext with pluralization
+~t"#{count} error(s)"N
 ```
 
 You can use explicit key syntax to bind `count` to an arbitrary expression:
 
 ```elixir
-~t"One user||#{count :: length(users)} users"N
+~t"#{count :: length(users)} user(s)"N
 ```
 
-Under the hood, the sigil maps to Gettext's `dpngettext/6`:
+`count` must appear as a binding. Using `N` without a `count` binding raises an `ArgumentError`. Without the `N` modifier, the message is treated as a regular (non-plural) translation.
+
+The `N` modifier can be combined with other modifiers: `~t"#{count} error(s)"eN` uses the `errors` domain.
+
+### Separator-based pluralization
+
+> **Deprecated:** Using a separator (`||`) to split singular and plural forms is deprecated and will be removed in a future version.
 
 ```elixir
+# deprecated — migrate to shared message
 ~t"One error||#{count} errors"N
-# =>
-dpngettext("default", nil, "One error", "%{count} errors", count)
+
+# use instead
+~t"#{count} error(s)"N
 ```
 
-`count` must appear as a binding in at least one of the singular or plural parts. Using `N` without a separator in the message raises an `ArgumentError`. Without the `N` modifier, `||` is treated as literal text.
-
-The `N` modifier can be combined with other modifiers: `~t"One error||#{count} errors"eN` uses the `errors` domain.
-
-### Custom separator
-
-The separator defaults to `||` (double pipe). You can override it globally via application config or per-module:
-
-```elixir
-# Application config
-config :gettext_sigils, pluralization: [separator: "✂️"]
-
-# Per-module
-use GettextSigils,
-  backend: MyApp.Gettext,
-  sigils: [pluralization: [separator: "<plural>"]]
-```
+The separator defaults to `||` (double pipe). Custom separators can be configured globally or per-module, but this feature is also deprecated along with separator-based pluralization.
 
 ## Usage Rules
 

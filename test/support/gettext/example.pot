@@ -15,3 +15,10 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "with %{i}"
 msgstr ""
+
+#: test/support/gettext.ex:25
+#, elixir-autogen, elixir-format
+msgid "%{count} item(s)"
+msgid_plural "%{count} item(s)"
+msgstr[0] ""
+msgstr[1] ""
