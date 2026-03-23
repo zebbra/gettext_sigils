@@ -12,6 +12,8 @@ defmodule GettextSigilsTest do
       ]
     ]
 
+  import ExUnit.CaptureIO
+
   alias GettextSigilsTest.GettextTest
 
   describe "using the module" do
@@ -41,53 +43,46 @@ defmodule GettextSigilsTest do
     assert GettextTest.without_modifiers() == "translated without modifiers"
     assert GettextTest.with_modifiers() == "translated with modifiers"
     assert GettextTest.with_interpolation("interpolation") == "translated with interpolation"
-    assert GettextTest.with_pluralization(5) == "High 5!"
+    assert GettextTest.with_pluralization(1) == "One item"
+    assert GettextTest.with_pluralization(5) == "5 items"
   end
 
   describe "pluralization" do
     test "plural message with count" do
-      assert ~t"One error||#{count :: 1} errors"N == "frontend: One error"
-      assert ~t"One error||#{count :: 3} errors"N == "frontend: 3 errors"
+      assert ~t"#{count :: 1} error(s)"N == "frontend: 1 error(s)"
+      assert ~t"#{count :: 3} error(s)"N == "frontend: 3 error(s)"
     end
 
-    test "plural with interpolations in both parts" do
+    test "plural with additional bindings" do
       count = 2
       name = "validation"
-      assert ~t"One #{name} error||#{count} #{name} errors"N == "frontend: 2 validation errors"
+      assert ~t"#{count} #{name} error(s)"N == "frontend: 2 validation error(s)"
     end
 
     test "plural with count via explicit key" do
       users = [1, 2, 3]
-      assert ~t"One user||#{count :: length(users)} users"N == "frontend: 3 users"
+      assert ~t"#{count :: length(users)} user(s)"N == "frontend: 3 user(s)"
     end
 
     test "plural with modifiers" do
       count = 5
-      assert ~t"One error||#{count} errors"eN == "errors: 5 errors"
+      assert ~t"#{count} error(s)"eN == "errors: 5 error(s)"
     end
 
     test "separator is treated as literal without N modifier" do
       assert ~t"literal || pipe" == "frontend: literal || pipe"
     end
-  end
-end
 
-defmodule GettextSigilsTest.CustomSeparatorTest do
-  @moduledoc false
-  use ExUnit.Case, async: false
+    test "deprecated separator emits warning at runtime" do
+      warning =
+        capture_io(:stderr, fn ->
+          assert GettextSigils.Pluralization.split!(
+                   {"One error||%{count} errors", [count: 3]},
+                   "||"
+                 ) == {"One error", "%{count} errors", 3, []}
+        end)
 
-  describe "per-use custom separator" do
-    use GettextSigils,
-      backend: GettextSigilsTest.DummyGettext,
-      sigils: [pluralization: [separator: "✂️"]]
-
-    test "splits on custom separator" do
-      count = 3
-      assert ~t"One error✂️#{count} errors"N == "default: 3 errors"
-    end
-
-    test "does not split on default separator when custom is set" do
-      assert ~t"literal || pipe" == "default: literal || pipe"
+      assert warning =~ "is deprecated, use a shared message instead"
     end
   end
 end

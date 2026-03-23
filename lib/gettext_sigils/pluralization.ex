@@ -1,38 +1,33 @@
 defmodule GettextSigils.Pluralization do
   @moduledoc ~S"""
-  Splits a parsed `~t` sigil into singular and plural forms for Gettext pluralization.
+  Handles pluralization for the `~t` sigil's `N` modifier.
 
-  Pluralization is activated by the `N` modifier. When present, the message is
-  split on the separator into a singular and a plural form, and the `:count`
-  binding is extracted to be passed as the `n` argument to `dpngettext/6`.
-
-  ## Separator
-
-  The default separator is `||` (double pipe). It can be changed per-module or
-  globally:
-
-  ```elixir
-  # config/config.exs
-  config :gettext_sigils, pluralization: [separator: "✂️"]
-
-  # per-module
-  use GettextSigils,
-    backend: MyApp.Gettext,
-    sigils: [pluralization: [separator: "✂️"]]
-  ```
+  When the `N` modifier is present, the message is used as both `msgid` and
+  `msgid_plural`, and the `:count` binding is extracted as the `n` argument
+  to `dpngettext/6`.
 
   ## Examples
 
-  ```elixir
-  ~t"One error||#{count} errors"N
-  #=> dpngettext("default", nil, "One error", "%{count} errors", count)
+      ~t"#{count} error(s)"N
+      #=> dpngettext("default", nil, "%{count} error(s)", "%{count} error(s)", count)
 
-  ~t"One user||#{count :: length(users)} users"N
-  #=> dpngettext("default", nil, "One user", "%{count} users", length(users))
-  ```
+  The resulting PO entry can be translated with distinct singular/plural forms:
 
-  The `count` binding must appear in at least one part (singular or plural).
-  It is removed from the bindings and only passed as the `n` argument.
+      msgid "%{count} error(s)"
+      msgid_plural "%{count} error(s)"
+      msgstr[0] "One error"
+      msgstr[1] "%{count} errors"
+
+  ## Deprecated: Separator-based pluralization
+
+  Using a separator (`||`) to split singular/plural forms is deprecated and
+  will be removed in a future version. Migrate to the shared-message approach:
+
+      # deprecated
+      ~t"One error||#{count} errors"N
+
+      # use instead
+      ~t"#{count} error(s)"N
   """
 
   @type singular() :: {binary(), Keyword.t()}
@@ -42,12 +37,18 @@ defmodule GettextSigils.Pluralization do
   def split!({msgid, bindings}, separator) do
     case String.split(msgid, separator) do
       [_single] ->
-        raise ArgumentError,
-              "the N modifier requires a separator #{inspect(separator)} in the message, but none was found"
+        {count, remaining} = extract_count!(bindings)
+        {msgid, msgid, count, remaining}
 
       [singular, plural] ->
-        {count, remaining_bindings} = extract_count!(bindings)
-        {singular, plural, count, remaining_bindings}
+        IO.warn(
+          "using a separator (#{inspect(separator)}) for pluralization in ~t sigil is deprecated, " <>
+            ~s'use a shared message instead, e.g. ~t"\#{count} item(s)"N. ' <>
+            "See https://github.com/zebbra/gettext_sigils/issues/20"
+        )
+
+        {count, remaining} = extract_count!(bindings)
+        {singular, plural, count, remaining}
 
       _parts ->
         raise ArgumentError,

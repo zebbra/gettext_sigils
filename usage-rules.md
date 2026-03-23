@@ -67,17 +67,17 @@ When generating code, you MUST NOT use fixed strings — use the `~t` sigil inst
 
 ## Pluralization
 
-Use the `N` modifier with `||` separator to split singular/plural forms:
+Use the `N` modifier for pluralization. The same message is used as both `msgid` and `msgid_plural`:
 
 ```elixir
-~t"One item||#{count} items"N
-# => dpngettext("default", nil, "One item", "%{count} items", count)
+~t"#{count} item(s)"N
+# => dpngettext("default", nil, "%{count} item(s)", "%{count} item(s)", count)
 ```
 
-- `count` must appear as a binding in at least one part (singular or plural)
+- `count` must appear as a binding
 - Bind `count` to an arbitrary expression with explicit key syntax: `#{count :: length(users)}`
-- Combine with other modifiers: `~t"One error||#{count} errors"eN` (uses `errors` domain)
-- Custom separator via app config (`config :gettext_sigils, pluralization: [separator: "✂️"]`) or per-module (`sigils: [pluralization: [separator: "✂️"]]`)
+- Combine with other modifiers: `~t"#{count} error(s)"eN` (uses `errors` domain)
+- Translators provide distinct singular/plural forms in `.po` files
 
 ## Limitations
 

@@ -22,5 +22,5 @@ defmodule GettextSigilsTest.GettextTest do
   def without_modifiers, do: ~t"without modifiers"
   def with_modifiers, do: ~t"with modifiers"em
   def with_interpolation(i), do: ~t"with #{i}"
-  def with_pluralization(count), do: ~t"One||High #{count}!"N
+  def with_pluralization(count), do: ~t"#{count} item(s)"N
 end

@@ -20,3 +20,10 @@ msgstr "translated without modifiers"
 #, elixir-autogen, elixir-format
 msgid "with %{i}"
 msgstr "translated with %{i}"
+
+#: test/support/gettext.ex:25
+#, elixir-autogen, elixir-format
+msgid "%{count} item(s)"
+msgid_plural "%{count} item(s)"
+msgstr[0] "One item"
+msgstr[1] "%{count} items"
