@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/zebbra/gettext_sigils/compare/v0.3.0...v0.3.1) (2026-03-23)
+
+
+### Features
+
+* deprecate separator-based pluralization in favor of shared message ([80ccd68](https://github.com/zebbra/gettext_sigils/commit/80ccd68fc99c6930b1a859ee466713d0f7faab64)), closes [#20](https://github.com/zebbra/gettext_sigils/issues/20)
+
 ## [0.3.0](https://github.com/zebbra/gettext_sigils/compare/v0.2.1...v0.3.0) (2026-03-19)
 
 
@@ -19,7 +26,6 @@
 
 ### Features
 
-* add `mix gettext_sigils.install` igniter task ([ec7975a](https://github.com/zebbra/gettext_sigils/commit/ec7975aaa53780ef61306588ec4be897ad04721d))
 * add `mix gettext_sigils.install` igniter task ([b2f55ec](https://github.com/zebbra/gettext_sigils/commit/b2f55ec590ca1fb7ce0276171b4d7f38252da000)), closes [#14](https://github.com/zebbra/gettext_sigils/issues/14)
 * add usage rules and localization skill for LLM agents ([8af463c](https://github.com/zebbra/gettext_sigils/commit/8af463c0969312769fbe4cd18f1acb4118b34d69)), closes [#13](https://github.com/zebbra/gettext_sigils/issues/13)
 
@@ -36,10 +42,6 @@
 * raise on ambiguous interpolation keys instead of auto-suffixing ([ce7096f](https://github.com/zebbra/gettext_sigils/commit/ce7096f3fc935d7f7120bfe3419e2fd10dad7dcc))
 
 
-### Code Refactoring
-
-* replace AmbiguousInterpolationError with ArgumentError ([983ce67](https://github.com/zebbra/gettext_sigils/commit/983ce67041dc87874163b171a8cd0e68cdf576d5))
-
 ## [0.1.1](https://github.com/zebbra/gettext_sigils/compare/v0.1.0...v0.1.1) (2026-03-09)
 
 
@@ -55,4 +57,3 @@
 
 * use fallback for operators ([c894179](https://github.com/zebbra/gettext_sigils/commit/c894179d0fe5879a1da5dcf6e2217c1b4b7d3668))
 * validate all options ([a7783f7](https://github.com/zebbra/gettext_sigils/commit/a7783f78b2d5a3f1a8fdf3e32d0e1ecdf9a97252))
-* validate all options ([8c7ed52](https://github.com/zebbra/gettext_sigils/commit/8c7ed52bddb7e5210a4533b79ad809e45c3a0c56))
