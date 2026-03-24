@@ -49,8 +49,8 @@ defmodule GettextSigilsTest do
 
   describe "pluralization" do
     test "plural message with count" do
-      assert ~t"#{count :: 1} error(s)"N == "frontend: 1 error(s)"
-      assert ~t"#{count :: 3} error(s)"N == "frontend: 3 error(s)"
+      assert ~t"#{count = 1} error(s)"N == "frontend: 1 error(s)"
+      assert ~t"#{count = 3} error(s)"N == "frontend: 3 error(s)"
     end
 
     test "plural with additional bindings" do
@@ -61,7 +61,7 @@ defmodule GettextSigilsTest do
 
     test "plural with count via explicit key" do
       users = [1, 2, 3]
-      assert ~t"#{count :: length(users)} user(s)"N == "frontend: 3 user(s)"
+      assert ~t"#{count = length(users)} user(s)"N == "frontend: 3 user(s)"
     end
 
     test "plural with modifiers" do

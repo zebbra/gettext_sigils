@@ -50,7 +50,7 @@ defmodule GettextSigils.PluralizationTest do
       users = [1, 2, 3]
 
       capture_io(:stderr, fn ->
-        assert split_parsed!("One user||#{count :: length(users)} users") ==
+        assert split_parsed!("One user||#{count = length(users)} users") ==
                  {"One user", "%{count} users", 3, []}
       end)
     end
@@ -130,7 +130,7 @@ defmodule GettextSigils.PluralizationTest do
     test "count via explicit key syntax" do
       users = [1, 2, 3]
 
-      assert split_parsed!("#{count :: length(users)} user(s)") ==
+      assert split_parsed!("#{count = length(users)} user(s)") ==
                {"%{count} user(s)", "%{count} user(s)", 3, []}
     end
 

@@ -36,7 +36,7 @@ use GettextSigils, backend: MyApp.Gettext
 - Keys are automatically derived from the expression, eg. `name` → `name`, `fruit.name` → `fruit_name`, `String.upcase(x)` → `string_upcase` (other expressions: `var`)
 - Duplicate keys with identical expressions are allowed and merged
 - Duplicate keys with different expressions raise `ArgumentError`
-- Use explicit keys (`#{key :: expr}`) to disambiguate interpolation keys
+- Use explicit keys (`#{key = expr}`) to disambiguate interpolation keys
 
 ## Domain, Context & Modifiers
 
@@ -75,7 +75,7 @@ Use the `N` modifier for pluralization. The same message is used as both `msgid`
 ```
 
 - `count` must appear as a binding
-- Bind `count` to an arbitrary expression with explicit key syntax: `#{count :: length(users)}`
+- Bind `count` to an arbitrary expression with explicit key syntax: `#{count = length(users)}`
 - Combine with other modifiers: `~t"#{count} error(s)"eN` (uses `errors` domain)
 - Translators provide distinct singular/plural forms in `.po` files
 
