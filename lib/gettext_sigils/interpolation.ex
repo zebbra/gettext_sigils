@@ -158,6 +158,9 @@ defmodule GettextSigils.Interpolation do
 
   ## Key derivation from AST expressions
 
+  # Module attribute: `@count` → "count"
+  defp binding_key_from_expr({:@, _, [{name, _, context}]}) when is_atom(name) and is_atom(context), do: name
+
   # Simple variable: `name` → "name"
   defp binding_key_from_expr({name, _, context}) when is_atom(name) and is_atom(context), do: name
 
@@ -168,6 +171,11 @@ defmodule GettextSigils.Interpolation do
     if Macro.operator?(name, length(args)),
       do: @fallback_binding_key,
       else: name
+  end
+
+  # Assign access: `assigns.name` → "name" (HEEx transforms `@name` to `assigns.name`)
+  defp binding_key_from_expr({{:., _, [{:assigns, _, _}, field]}, _, []}) when is_atom(field) do
+    field
   end
 
   # Dot access: `fruit.name` → "fruit_name"

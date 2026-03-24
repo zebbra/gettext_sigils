@@ -100,6 +100,30 @@ defmodule GettextSigils.InterpolationTest do
     end
   end
 
+  describe "module attributes" do
+    @foo "bar"
+
+    test "derives key from name" do
+      assert parse!("foo: #{@foo}") == {"foo: %{foo}", [foo: "bar"]}
+    end
+
+    test "with explicit key" do
+      assert parse!("foo: #{bar :: @foo}") == {"foo: %{bar}", [bar: "bar"]}
+    end
+  end
+
+  describe "assigns" do
+    test "assigns.name derives key from field name only" do
+      assigns = %{foo: "bar"}
+      assert parse!("foo: #{assigns.foo}") == {"foo: %{foo}", [foo: "bar"]}
+    end
+
+    test "with explicit key" do
+      assigns = %{foo: "bar"}
+      assert parse!("foo: #{bar :: assigns.foo}") == {"foo: %{bar}", [bar: "bar"]}
+    end
+  end
+
   describe "explicit key syntax" do
     test "explicit key with :: operator" do
       assert parse!("Status: #{status :: String.upcase("ok")}") ==
