@@ -12,8 +12,6 @@ defmodule GettextSigilsTest do
       ]
     ]
 
-  import ExUnit.CaptureIO
-
   alias GettextSigilsTest.GettextTest
 
   describe "using the module" do
@@ -67,22 +65,6 @@ defmodule GettextSigilsTest do
     test "plural with modifiers" do
       count = 5
       assert ~t"#{count} error(s)"eN == "errors: 5 error(s)"
-    end
-
-    test "separator is treated as literal without N modifier" do
-      assert ~t"literal || pipe" == "frontend: literal || pipe"
-    end
-
-    test "deprecated separator emits warning at runtime" do
-      warning =
-        capture_io(:stderr, fn ->
-          assert GettextSigils.Pluralization.split!(
-                   {"One error||%{count} errors", [count: 3]},
-                   "||"
-                 ) == {"One error", "%{count} errors", 3, []}
-        end)
-
-      assert warning =~ "is deprecated, use a shared message instead"
     end
   end
 end

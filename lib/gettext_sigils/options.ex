@@ -31,25 +31,6 @@ defmodule GettextSigils.Options do
 
               #{NimbleOptions.docs(@modifier_value_schema, nest_level: 1)}
               """
-            ],
-            pluralization: [
-              type: :keyword_list,
-              default: [],
-              doc: "Pluralization options.",
-              keys: [
-                separator: [
-                  type: {:custom, __MODULE__, :validate_separator, []},
-                  doc: """
-                  The string used to split singular and plural forms. Can also be set globally in the config.
-
-                  ```elixir
-                  config :gettext_sigils, pluralization: [separator: "<plural>"]
-                  ```
-
-                  The default is `"||"` (double pipe).
-                  """
-                ]
-              ]
             ]
           )
 
@@ -70,9 +51,6 @@ defmodule GettextSigils.Options do
           modifiers: [
             e: [domain: "errors"],
             a: [context: "admin"]
-          ],
-          pluralization: [
-            separator: "||"
           ]
         ]
 
@@ -84,13 +62,6 @@ defmodule GettextSigils.Options do
   @spec validate!(keyword()) :: keyword() | no_return()
   def validate!(opts) do
     NimbleOptions.validate!(opts, @schema)
-  end
-
-  @doc false
-  def pluralization_separator(opts) do
-    opts
-    |> Keyword.get(:pluralization, [])
-    |> Keyword.get_lazy(:separator, &GettextSigils.Pluralization.default_separator/0)
   end
 
   @doc false
@@ -107,12 +78,5 @@ defmodule GettextSigils.Options do
 
   def validate_modifier({key, _value}) do
     {:error, "modifier keys must be lowercase letters (a-z), got: #{inspect(key)}"}
-  end
-
-  @doc false
-  def validate_separator(sep) when is_binary(sep) and byte_size(sep) > 0, do: {:ok, sep}
-
-  def validate_separator(value) do
-    {:error, "separator must be a non-empty string, got: #{inspect(value)}"}
   end
 end

@@ -7,7 +7,6 @@ defmodule GettextSigils.Sigil do
 
   alias GettextSigils.Interpolation
   alias GettextSigils.Modifiers
-  alias GettextSigils.Options
   alias GettextSigils.Pluralization
 
   @doc """
@@ -23,18 +22,12 @@ defmodule GettextSigils.Sigil do
 
     term
     |> Interpolation.parse!()
-    |> maybe_pluralize!(opts, plural?)
+    |> maybe_pluralize!(plural?)
     |> translate(domain, context)
   end
 
-  defp maybe_pluralize!(parsed, _opts, false = _plural?) do
-    parsed
-  end
-
-  defp maybe_pluralize!(parsed, opts, true = _plural?) do
-    separator = Options.pluralization_separator(opts)
-    Pluralization.split!(parsed, separator)
-  end
+  defp maybe_pluralize!(parsed, false = _plural?), do: parsed
+  defp maybe_pluralize!(parsed, true = _plural?), do: Pluralization.pluralize!(parsed)
 
   defp translate({msgid, bindings}, domain, context) do
     quote do
