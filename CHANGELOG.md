@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.4.0](https://github.com/zebbra/gettext_sigils/compare/v0.3.2...v0.4.0) (2026-03-24)
+
+
+### ⚠ BREAKING CHANGES
+
+* The `:pluralization` option (including `:separator`) has been removed from `use GettextSigils` sigils config and application config. `Pluralization.split!/2` has been replaced by `Pluralization.pluralize!/1`.
+* explicit key syntax changes from
+
+### Features
+
+* remove deprecated separator-based pluralization ([5f83c67](https://github.com/zebbra/gettext_sigils/commit/5f83c67d2e54c727b399c90b9a0a62b8b61d5670))
+
+
+### Bug Fixes
+
+* change explicit key operator from :: to = ([a559da3](https://github.com/zebbra/gettext_sigils/commit/a559da3743a64b05c4a0bca56e6a84969012180f)), closes [#23](https://github.com/zebbra/gettext_sigils/issues/23)
+* handle module attributes and HEEx assigns ([29cb05d](https://github.com/zebbra/gettext_sigils/commit/29cb05d24245786145fcc149039e429e7393a17e))
+
 ## [0.3.2](https://github.com/zebbra/gettext_sigils/compare/v0.3.1...v0.3.2) (2026-03-24)
 
 
