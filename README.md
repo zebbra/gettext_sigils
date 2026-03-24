@@ -221,20 +221,6 @@ You can use explicit key syntax to bind `count` to an arbitrary expression:
 
 The `N` modifier can be combined with other modifiers: `~t"#{count} error(s)"eN` uses the `errors` domain.
 
-### Separator-based pluralization
-
-> **Deprecated:** Using a separator (`||`) to split singular and plural forms is deprecated and will be removed in a future version.
-
-```elixir
-# deprecated — migrate to shared message
-~t"One error||#{count} errors"N
-
-# use instead
-~t"#{count} error(s)"N
-```
-
-The separator defaults to `||` (double pipe). Custom separators can be configured globally or per-module, but this feature is also deprecated along with separator-based pluralization.
-
 ## Usage Rules
 
 GettextSigils ships with usage rules and skills for LLM coding agents (Claude Code, Cursor, Codex, etc.) via the [`usage_rules`](https://hexdocs.pm/usage_rules) library. See the [LLM guide](guides/llm.md) for setup instructions.

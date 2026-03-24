@@ -17,45 +17,15 @@ defmodule GettextSigils.Pluralization do
       msgid_plural "%{count} error(s)"
       msgstr[0] "One error"
       msgstr[1] "%{count} errors"
-
-  ## Deprecated: Separator-based pluralization
-
-  Using a separator (`||`) to split singular/plural forms is deprecated and
-  will be removed in a future version. Migrate to the shared-message approach:
-
-      # deprecated
-      ~t"One error||#{count} errors"N
-
-      # use instead
-      ~t"#{count} error(s)"N
   """
-
-  @default_separator "||"
 
   @type singular() :: {binary(), Keyword.t()}
   @type plural() :: {binary(), binary(), Macro.t(), Keyword.t()}
 
-  @spec split!(singular(), binary()) :: plural()
-  def split!({msgid, bindings}, separator) do
-    case String.split(msgid, separator) do
-      [_single] ->
-        {count, remaining} = extract_count!(bindings)
-        {msgid, msgid, count, remaining}
-
-      [singular, plural] ->
-        IO.warn(
-          "using a separator (#{inspect(separator)}) for pluralization in ~t sigil is deprecated, " <>
-            ~s'use a shared message instead, e.g. ~t"\#{count} item(s)"N. ' <>
-            "See https://github.com/zebbra/gettext_sigils/issues/20"
-        )
-
-        {count, remaining} = extract_count!(bindings)
-        {singular, plural, count, remaining}
-
-      _parts ->
-        raise ArgumentError,
-              "plural message contains more than one separator #{inspect(separator)}, expected exactly one"
-    end
+  @spec pluralize!(singular()) :: plural()
+  def pluralize!({msgid, bindings}) do
+    {count, remaining} = extract_count!(bindings)
+    {msgid, msgid, count, remaining}
   end
 
   defp extract_count!(bindings) do
@@ -67,11 +37,5 @@ defmodule GettextSigils.Pluralization do
       {count, remaining} ->
         {count, remaining}
     end
-  end
-
-  def default_separator do
-    :gettext_sigils
-    |> Application.get_env(:pluralization, [])
-    |> Keyword.get(:separator, @default_separator)
   end
 end
