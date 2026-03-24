@@ -5,13 +5,12 @@
 
 ### ⚠ BREAKING CHANGES
 
-* The `:pluralization` option (including `:separator`) has been removed from `use GettextSigils` sigils config and application config. `Pluralization.split!/2` has been replaced by `Pluralization.pluralize!/1`.
-* explicit key syntax changes from
+* remove deprecated separator-based pluralization and removed the `:pluralization` option from `use GettextSigils` sigils config and application config
+* explicit key syntax changes from `#{foo :: bar}` to `#{foo = bar}` to support 
 
 ### Features
 
 * remove deprecated separator-based pluralization ([5f83c67](https://github.com/zebbra/gettext_sigils/commit/5f83c67d2e54c727b399c90b9a0a62b8b61d5670))
-
 
 ### Bug Fixes
 
