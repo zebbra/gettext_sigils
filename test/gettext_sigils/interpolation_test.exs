@@ -100,10 +100,48 @@ defmodule GettextSigils.InterpolationTest do
     end
   end
 
+  describe "module attributes" do
+    @foo "bar"
+
+    test "derives key from name" do
+      assert parse!("foo: #{@foo}") == {"foo: %{foo}", [foo: "bar"]}
+    end
+
+    test "with explicit key" do
+      assert parse!("foo: #{bar = @foo}") == {"foo: %{bar}", [bar: "bar"]}
+    end
+  end
+
+  describe "assigns" do
+    test "assigns.name derives key from field name only" do
+      assigns = %{foo: "bar"}
+      assert parse!("foo: #{assigns.foo}") == {"foo: %{foo}", [foo: "bar"]}
+    end
+
+    test "with explicit key" do
+      assigns = %{foo: "bar"}
+      assert parse!("foo: #{bar = assigns.foo}") == {"foo: %{bar}", [bar: "bar"]}
+    end
+  end
+
   describe "explicit key syntax" do
-    test "explicit key with :: operator" do
-      assert parse!("Status: #{status :: String.upcase("ok")}") ==
+    test "explicit key with = operator" do
+      assert parse!("Status: #{status = String.upcase("ok")}") ==
                {"Status: %{status}", [status: "OK"]}
+    end
+
+    test "raises when left side of = is not a variable" do
+      assert_raise ArgumentError, ~r/explicit key must be a variable/, fn ->
+        parse_quoted!("#{:foo = bar}")
+      end
+
+      assert_raise ArgumentError, ~r/explicit key must be a variable/, fn ->
+        parse_quoted!("#{1 = bar}")
+      end
+
+      assert_raise ArgumentError, ~r/explicit key must be a variable/, fn ->
+        parse_quoted!("#{%{} = bar}")
+      end
     end
   end
 
@@ -114,12 +152,12 @@ defmodule GettextSigils.InterpolationTest do
     end
 
     test "same explicit key with same value is allowed" do
-      assert parse!("#{x :: :foo} #{x :: :foo}") == {"%{x} %{x}", [x: :foo]}
+      assert parse!("#{x = :foo} #{x = :foo}") == {"%{x} %{x}", [x: :foo]}
     end
 
     test "same key with different values raises" do
       assert_raise ArgumentError, ~r/ambiguous.*interpolation keys/i, fn ->
-        parse_quoted!("#{foo :: :a} #{foo :: :b}")
+        parse_quoted!("#{foo = :a} #{foo = :b}")
       end
     end
   end

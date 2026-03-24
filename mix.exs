@@ -54,7 +54,9 @@ defmodule GettextSigils.MixProject do
       {:styler, "~> 1.11", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.37", only: :dev, runtime: false},
       {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false},
-      {:phx_new, "~> 1.7", optional: true, only: [:dev, :test]}
+      {:phx_new, "~> 1.7", optional: true, only: [:dev, :test]},
+      {:phoenix_live_view, "~> 1.0", only: [:test]},
+      {:phoenix_html, "~> 4.0", only: [:test]}
     ]
   end
 

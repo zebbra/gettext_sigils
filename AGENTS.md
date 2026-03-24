@@ -8,7 +8,7 @@
 
 - **`GettextSigils`** — Main entry point. `use GettextSigils, backend: MyApp.Gettext` imports the `~t` sigil and configures domain, context, and modifiers.
 - **`GettextSigils.Sigil`** — Implements `sigil_t/2`. Parses interpolation, resolves modifiers, and emits `dpgettext/4` calls at compile time.
-- **`GettextSigils.Interpolation`** — Converts `#{expr}` to `%{key}` placeholders with automatic key derivation (e.g. `user.name` → `user_name`, `String.upcase(x)` → `string_upcase`). Supports explicit keys via `key :: expr` syntax.
+- **`GettextSigils.Interpolation`** — Converts `#{expr}` to `%{key}` placeholders with automatic key derivation (e.g. `user.name` → `user_name`, `String.upcase(x)` → `string_upcase`). Supports explicit keys via `key = expr` syntax.
 - **`GettextSigils.Options`** — Validates compile-time configuration: `:domain`, `:context`, and `:modifiers` (single lowercase letter keys mapping to domain/context overrides).
 
 ### Key Features

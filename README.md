@@ -155,13 +155,13 @@ Use explicit keys to disambiguate between expressions with the same key.
 
 ### Explicit keys
 
-Explicit keys can be used with the `::` syntax for more control to disambiguate between multiple bindings with the same key:
+Explicit keys can be used with the `=` syntax for more control to disambiguate between multiple bindings with the same key:
 
 ```elixir
-~t"Order status: #{status :: order_status(resp[field])}"
+~t"Order status: #{status = order_status(resp[field])}"
 # => gettext("Order status: %{status}", status: order_status(resp[field]))
 
-~t"Valid: #{x :: Foo.bar()} != #{y :: foo_bar}"
+~t"Valid: #{x = Foo.bar()} != #{y = foo_bar}"
 # => gettext("Valid: %{x} != %{y}", x: Foo.bar(), y: foo_bar)
 ```
 
@@ -214,7 +214,7 @@ This enables progressive adoption without changing the message:
 You can use explicit key syntax to bind `count` to an arbitrary expression:
 
 ```elixir
-~t"#{count :: length(users)} user(s)"N
+~t"#{count = length(users)} user(s)"N
 ```
 
 `count` must appear as a binding. Using `N` without a `count` binding raises an `ArgumentError`. Without the `N` modifier, the message is treated as a regular (non-plural) translation.

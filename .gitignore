@@ -30,3 +30,6 @@ gettext_sigils-*.tar
 
 # Local env vars
 .env
+
+# superpowers plans
+docs/plans/
