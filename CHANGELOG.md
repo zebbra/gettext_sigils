@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/zebbra/gettext_sigils/compare/v0.3.1...v0.3.2) (2026-03-24)
+
+
+### Bug Fixes
+
+* don't expect default separator to be set ([d24c7e6](https://github.com/zebbra/gettext_sigils/commit/d24c7e6caea7c13d2cd3206bc59ba1b9e674c2de))
+
 ## [0.3.1](https://github.com/zebbra/gettext_sigils/compare/v0.3.0...v0.3.1) (2026-03-23)
 
 
