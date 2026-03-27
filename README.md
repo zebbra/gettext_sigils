@@ -165,12 +165,6 @@ Explicit keys can be used with the `=` syntax for more control to disambiguate b
 # => gettext("Valid: %{x} != %{y}", x: Foo.bar(), y: foo_bar)
 ```
 
-> #### HEEx limitation {: .warning}
->
-> In HEEx templates, `@assigns` on the right side of `::` are not transformed by the LiveView engine.
-> Use a separate assign as a workaround: `assign(socket, :count, length(todos))` then `~t"#{@count} Todo(s)"N`.
-> See [#23](https://github.com/zebbra/gettext_sigils/issues/23).
-
 ## Pluralization
 
 Use the `N` modifier for pluralization. The `count` binding determines which form Gettext selects at runtime:
