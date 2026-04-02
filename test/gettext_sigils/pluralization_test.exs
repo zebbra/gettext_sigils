@@ -32,9 +32,20 @@ defmodule GettextSigils.PluralizationTest do
              {"%{count} user(s)", "%{count} user(s)", 3, []}
   end
 
-  test "raises when count binding is missing" do
-    assert_raise ArgumentError, ~r/requires a "count" binding/, fn ->
+  test "raises when no bindings are present" do
+    assert_raise ArgumentError, ~r/requires at least one binding/, fn ->
       Pluralization.pluralize!({"no count here", []})
+    end
+  end
+
+  test "single binding with any name is used as count" do
+    assert Pluralization.pluralize!({"%{num} error(s)", [num: 5]}) ==
+             {"%{num} error(s)", "%{num} error(s)", 5, []}
+  end
+
+  test "multiple bindings require count key" do
+    assert_raise ArgumentError, ~r/requires a "count" binding/, fn ->
+      Pluralization.pluralize!({"%{num} %{name} error(s)", [num: 5, name: "validation"]})
     end
   end
 end

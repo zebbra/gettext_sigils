@@ -28,14 +28,23 @@ defmodule GettextSigils.Pluralization do
     {msgid, msgid, count, remaining}
   end
 
-  defp extract_count!(bindings) do
+  defp extract_count!([{_key, value}]) do
+    {value, []}
+  end
+
+  defp extract_count!(bindings) when length(bindings) > 1 do
     case Keyword.pop(bindings, :count) do
       {nil, _} ->
         raise ArgumentError,
-              "plural message requires a \"count\" binding, but none was found"
+              "plural message with multiple bindings requires a \"count\" binding to identify the pluralizer"
 
       {count, remaining} ->
         {count, remaining}
     end
+  end
+
+  defp extract_count!([]) do
+    raise ArgumentError,
+          "plural message requires at least one binding for the count"
   end
 end
