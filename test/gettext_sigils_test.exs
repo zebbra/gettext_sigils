@@ -21,7 +21,7 @@ defmodule GettextSigilsTest do
       assert ~t[with #{"interpolation"}]em == "errors/MyModule: with interpolation"
     end
 
-    test "imports Gettext marcros" do
+    test "imports Gettext macros" do
       assert gettext("Hello, Gettext!") == "default: Hello, Gettext!"
     end
   end
