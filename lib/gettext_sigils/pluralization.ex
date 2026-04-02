@@ -26,28 +26,23 @@ defmodule GettextSigils.Pluralization do
   @type plural() :: {binary(), binary(), Macro.t(), Keyword.t()}
 
   @spec pluralize!(singular()) :: plural()
+  def pluralize!({_msgid, []}) do
+    raise ArgumentError,
+          "plural message requires at least one binding for the count"
+  end
+
+  def pluralize!({msgid, [{_key, value}]}) do
+    {msgid, msgid, value, []}
+  end
+
   def pluralize!({msgid, bindings}) do
-    {count, remaining} = extract_count!(bindings)
-    {msgid, msgid, count, remaining}
-  end
-
-  defp extract_count!([{_key, value}]) do
-    {value, []}
-  end
-
-  defp extract_count!(bindings) when length(bindings) > 1 do
     case Keyword.pop(bindings, :count) do
       {nil, _} ->
         raise ArgumentError,
               "plural message with multiple bindings requires a \"count\" binding to identify the pluralizer"
 
       {count, remaining} ->
-        {count, remaining}
+        {msgid, msgid, count, remaining}
     end
-  end
-
-  defp extract_count!([]) do
-    raise ArgumentError,
-          "plural message requires at least one binding for the count"
   end
 end
