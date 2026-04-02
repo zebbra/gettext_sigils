@@ -167,12 +167,26 @@ Explicit keys can be used with the `=` syntax for more control to disambiguate b
 
 ## Pluralization
 
-Use the `N` modifier for pluralization. The `count` binding determines which form Gettext selects at runtime:
+Use the `N` modifier for pluralization. With multiple bindings, the plural binding must be named `count`:
 
 ```elixir
 ~t"#{count} error(s)"N
 # with count = 1 => "1 error(s)"  (untranslated fallback)
 # with count = 3 => "3 error(s)"  (untranslated fallback)
+```
+
+```elixir
+~t"#{num} error(s)"N
+# with num = 1 => "1 error(s)"  (untranslated fallback)
+# with num = 3 => "3 error(s)"  (untranslated fallback)
+```
+
+```elixir
+# valid
+~t"#{id} #{count} error(s)"N
+
+# error
+~t"#{id} #{num} error(s)"N
 ```
 
 Under the hood, the sigil uses the same message as both `msgid` and `msgid_plural`:
@@ -211,7 +225,7 @@ You can use explicit key syntax to bind `count` to an arbitrary expression:
 ~t"#{count = length(users)} user(s)"N
 ```
 
-`count` must appear as a binding. Using `N` without a `count` binding raises an `ArgumentError`. Without the `N` modifier, the message is treated as a regular (non-plural) translation.
+When there is only one binding, any name works (e.g., `~t"#{num} error(s)"N`). With multiple bindings, one must be named `count`. Using `N` without any bindings raises an `ArgumentError`. Without the `N` modifier, the message is treated as a regular (non-plural) translation.
 
 The `N` modifier can be combined with other modifiers: `~t"#{count} error(s)"eN` uses the `errors` domain.
 

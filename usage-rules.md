@@ -74,7 +74,8 @@ Use the `N` modifier for pluralization. The same message is used as both `msgid`
 # => dpngettext("default", nil, "%{count} item(s)", "%{count} item(s)", count)
 ```
 
-- `count` must appear as a binding
+- With a single binding, any name works as the count (e.g., `~t"#{num} item(s)"N`)
+- With multiple bindings, one must be named `count`
 - Bind `count` to an arbitrary expression with explicit key syntax: `#{count = length(users)}`
 - Combine with other modifiers: `~t"#{count} error(s)"eN` (uses `errors` domain)
 - Translators provide distinct singular/plural forms in `.po` files

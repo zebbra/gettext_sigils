@@ -3,8 +3,11 @@ defmodule GettextSigils.Pluralization do
   Handles pluralization for the `~t` sigil's `N` modifier.
 
   When the `N` modifier is present, the message is used as both `msgid` and
-  `msgid_plural`, and the `:count` binding is extracted as the `n` argument
+  `msgid_plural`, and a binding is extracted as the `n` argument
   to `dpngettext/6`.
+
+  If the message has a single binding, it is used as the count regardless of
+  its name. If there are multiple bindings, one must be named `:count`.
 
   ## Examples
 
