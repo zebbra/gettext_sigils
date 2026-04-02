@@ -50,10 +50,10 @@ defmodule GettextSigils.HEExTest do
 
       html =
         rendered_to_string(~H"""
-        <h1>{~t"#{count = length(@todos)} todos(s)"N}</h1>
+        <h1>{~t"#{count = length(@todos)} todo(s)"N}</h1>
         """)
 
-      assert html =~ "3 todos(s)"
+      assert html =~ "3 todo(s)"
     end
   end
 end
