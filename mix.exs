@@ -77,6 +77,9 @@ defmodule GettextSigils.MixProject do
       extras: [
         {"README.md", title: "Home"},
         {"CHANGELOG.md", title: "Changelog"},
+        "guides/interpolation.md",
+        "guides/modifiers.md",
+        "guides/pluralization.md",
         "guides/llm.md"
       ],
       groups_for_extras: [

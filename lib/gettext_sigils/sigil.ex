@@ -7,27 +7,50 @@ defmodule GettextSigils.Sigil do
 
   alias GettextSigils.Interpolation
   alias GettextSigils.Modifiers
-  alias GettextSigils.Pluralization
 
   @doc """
   Translates the given string using the `Gettext` module.
 
-  The module has to use `GettextSigils` to import this sigil. See the [README](../../README.md) for more information.
+  The module has to `use GettextSigils` to import this sigil. See `GettextSigils` for setup.
   """
 
   @spec sigil_t(Macro.t(), charlist()) :: Macro.t()
   defmacro sigil_t(term, modifiers) do
     opts = Module.get_attribute(__CALLER__.module, :__gettext_sigils__)
-    {domain, context, plural?} = Modifiers.resolve!(modifiers, opts)
 
-    term
-    |> Interpolation.parse!()
-    |> maybe_pluralize!(plural?)
+    defaults = {Keyword.get(opts, :domain, :default), Keyword.get(opts, :context, nil)}
+
+    modifier_map = Keyword.get(opts, :modifiers, %{})
+    modifiers = Modifiers.lookup_modifiers!(modifiers, modifier_map)
+
+    parsed = interpolate(term)
+    {domain, context} = Modifiers.resolve_domain_context!(modifiers, parsed, defaults)
+
+    parsed
+    |> preprocess(modifiers)
+    |> pluralize(modifiers)
     |> translate(domain, context)
+    |> postprocess(modifiers)
   end
 
-  defp maybe_pluralize!(parsed, false = _plural?), do: parsed
-  defp maybe_pluralize!(parsed, true = _plural?), do: Pluralization.pluralize!(parsed)
+  defp interpolate(term), do: Interpolation.parse!(term)
+
+  defp preprocess(parsed, modifiers), do: Modifiers.preprocess!(modifiers, parsed)
+
+  defp pluralize(parsed, modifiers), do: Modifiers.pluralize!(modifiers, parsed)
+
+  # Emits a runtime call to `Modifiers.postprocess!/2` that walks the
+  # resolved modifier chain at runtime, piping the translated string
+  # through each modifier's `postprocess/2` callback. The chain is
+  # baked into the call site as a literal.
+  defp postprocess(inner, modifiers) do
+    quote do
+      GettextSigils.Modifiers.postprocess!(
+        unquote(Macro.escape(modifiers)),
+        unquote(inner)
+      )
+    end
+  end
 
   defp translate({msgid, bindings}, domain, context) do
     quote do

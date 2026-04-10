@@ -27,7 +27,7 @@ The package provides an [igniter](https://hexdocs.pm/igniter/readme.html) instal
 mix igniter.install gettext_sigils
 ```
 
-**Note:** This also replaces `use Gettext` with `use GettextSigils` in the project.
+The installer also rewrites existing `use Gettext` calls in the project to `use GettextSigils`.
 
 ### Manually
 
@@ -65,125 +65,75 @@ You can then use the `~t` sigil instead of the `gettext` macro:
 gettext("Hello, World!")
 ```
 
-**Note:** The default Gettext macros (`gettext`, `pgettext`, `dgettext`, ...) are still available if required.
+> #### Gettext macros still work {: .tip}
+>
+> The default Gettext macros (`gettext`, `pgettext`, `dgettext`, ...) remain available in modules that `use GettextSigils`, so you can mix and match as needed.
 
-## Domain & Context
+## Features
 
-Gettext [domain](https://hexdocs.pm/gettext/Gettext.html#module-domains) and [context](https://hexdocs.pm/gettext/Gettext.html#module-contexts) are provided under the `sigils` key when using the module. All other options are passed through to `use Gettext`.
+### Interpolation
 
-```elixir
-defmodule MyApp.Errors.NotFound do
-  use GettextSigils,
-    backend: MyApp.Gettext,
-    sigils: [
-      domain: "errors",
-      context: inspect(__MODULE__)
-    ]
-
-  def description(path) do
-    # uses domain and context from sigils options
-    ~t[The file "#{path}" does not exist]
-
-    # is equivalent to
-    dpgettext(
-      "errors",
-      inspect(__MODULE__),
-      ~s[The file "%{path}" does not exist],
-      path: path
-    )
-  end
-end
-```
-
-## Modifiers
-
-Sigil modifiers (single lowercase letters appended to the sigil) can be used to override the domain and context on a per-translation basis. Define modifiers in the `sigils` options:
-
-```elixir
-defmodule MyApp.Frontend do
-  use GettextSigils,
-    backend: MyApp.Gettext,
-    sigils: [
-      domain: "frontend",
-      modifiers: [
-        e: [domain: "errors"],
-        g: [domain: "default", context: nil],
-        m: [context: inspect(__MODULE__)]
-      ]
-    ]
-
-  def example do
-    ~t"Welcome"           # domain: "frontend", context: nil
-    ~t"Yes"g              # domain: "default",  context: nil
-    ~t"Not found"e        # domain: "errors",   context: nil
-    ~t"Hello"m            # domain: "frontend", context: "MyApp.Frontend"
-    ~t"Oops"em            # domain: "errors",   context: "MyApp.Frontend"
-  end
-end
-```
-
-Each modifier key must be a single lowercase letter (`a`–`z`) and accepts the options `:domain` and `:context`. Using an undefined modifier results in a compile-time error.
-
-## Interpolation
-
-Gettext [interpolation](https://hexdocs.pm/gettext/Gettext.html#module-interpolation) works similar to regular Elixir strings. Keys are derived automatically from the expression:
+Interpolated expressions become Gettext bindings with automatically derived keys:
 
 ```elixir
 ~t"The #{fruit.name} is #{color}"
 # => gettext("The %{fruit_name} is %{color}", fruit_name: fruit.name, color: color)
-
-~t"Status: #{String.upcase(status)}"
-# => gettext("Status: %{string_upcase}", string_upcase: String.upcase(status))
-
-~t"Value: #{1 + 2}"
-# => gettext("Value: %{var}", var: 1 + 2)
 ```
 
-Duplicate keys are allowed if they refer to the same expression. Otherwise, an ambiguous key error is raised.
+See the [Interpolation guide](guides/interpolation.md) for the full key derivation rules, handling of ambiguous keys, and explicit `key = expr` syntax.
+
+### Domain & Context
+
+Set a default Gettext [domain](https://hexdocs.pm/gettext/Gettext.html#module-domains) and [context](https://hexdocs.pm/gettext/Gettext.html#module-contexts) per module under the `:sigils` key. Every `~t` sigil in the module then uses these by default:
 
 ```elixir
-# This is allowed:
-~t"#{name} is #{name}"
-# => gettext("%{name} is %{name}", name: name)
+use GettextSigils,
+  backend: MyApp.Gettext,
+  sigils: [
+    domain: "frontend",
+    context: "dashboard"
+  ]
 
-# This is NOT allowed:
-~t"This is invalid: #{Foo.bar()} != #{foo.bar}"
-# => raises ArgumentError (foo_bar)
+~t"Welcome"   # => dpgettext(MyApp.Gettext, "frontend", "dashboard", "Welcome")
 ```
 
-Use explicit keys to disambiguate between expressions with the same key.
+### Modifiers
 
-### Explicit keys
-
-Explicit keys can be used with the `=` syntax for more control to disambiguate between multiple bindings with the same key:
+Single-letter suffixes on the `~t` sigil tweak how a translation is produced. Define them under the `:modifiers` key: each entry maps a letter to a keyword list of `:domain` and/or `:context` overrides that apply when the sigil carries that letter.
 
 ```elixir
-~t"Order status: #{status = order_status(resp[field])}"
-# => gettext("Order status: %{status}", status: order_status(resp[field]))
+defmodule MyAppWeb.DashboardLive do
+  use GettextSigils,
+    backend: MyApp.Gettext,
+    sigils: [
+      domain: "frontend",
+      context: inspect(__MODULE__),
+      modifiers: [
+        e: [domain: "errors"],
+        g: [domain: :default, context: nil]
+      ]
+    ]
 
-~t"Valid: #{x = Foo.bar()} != #{y = foo_bar}"
-# => gettext("Valid: %{x} != %{y}", x: Foo.bar(), y: foo_bar)
+  ~t"Welcome"     # domain: "frontend", context: "MyAppWeb.DashboardLive"
+  ~t"Not found"e  # domain: "errors",   context: "MyAppWeb.DashboardLive"
+  ~t"Yes"g        # backend default domain, no context
+  ~t"Not found"eg # backend default domain, no context (g runs after e)
+end
 ```
 
-## Pluralization
+The `g` modifier above is a user-defined "global" escape hatch: `domain: :default` resets to the backend's configured default domain and `context: nil` clears whatever context the module or an earlier modifier set. Modifiers apply left-to-right, so in `eg` the final `g` wins.
 
-Use the `N` modifier for pluralization. The `count` binding determines which form Gettext selects at runtime:
+Modifier entries can also point at a module for message rewriting, postprocessing, or custom pluralization. See the [Modifiers guide](guides/modifiers.md) for the full picture.
+
+### Pluralization
+
+The built-in `N` modifier turns a `~t` sigil into a plural Gettext call, selecting the singular or plural form at runtime based on the `count` binding:
 
 ```elixir
 ~t"#{count} error(s)"N
-# with count = 1 => "1 error(s)"  (untranslated fallback)
-# with count = 3 => "3 error(s)"  (untranslated fallback)
 ```
 
-Under the hood, the sigil uses the same message as both `msgid` and `msgid_plural`:
-
-```elixir
-~t"#{count} error(s)"N
-# =>
-dpngettext("default", nil, "%{count} error(s)", "%{count} error(s)", count)
-```
-
-Translators provide distinct singular/plural forms in the `.po` file:
+The msgid is reused as both `msgid` and `msgid_plural` in the `.po` file, so translators can fill in the distinct forms per locale:
 
 ```pot
 msgid "%{count} error(s)"
@@ -192,28 +142,7 @@ msgstr[0] "One error"
 msgstr[1] "%{count} errors"
 ```
 
-This enables progressive adoption without changing the message:
-
-```elixir
-# plain string (no gettext)
-"#{count} error(s)"
-
-# gettext without pluralization
-~t"#{count} error(s)"
-
-# gettext with pluralization
-~t"#{count} error(s)"N
-```
-
-You can use explicit key syntax to bind `count` to an arbitrary expression:
-
-```elixir
-~t"#{count = length(users)} user(s)"N
-```
-
-`count` must appear as a binding. Using `N` without a `count` binding raises an `ArgumentError`. Without the `N` modifier, the message is treated as a regular (non-plural) translation.
-
-The `N` modifier can be combined with other modifiers: `~t"#{count} error(s)"eN` uses the `errors` domain.
+See the [Pluralization guide](guides/pluralization.md) for the full rules and how to write a custom pluralization modifier.
 
 ## Usage Rules
 

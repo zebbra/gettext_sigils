@@ -1,41 +1,12 @@
 defmodule GettextSigils.Interpolation do
-  @moduledoc ~S"""
+  @moduledoc """
   Translates Elixir string interpolation into Gettext message format.
 
   Parses the AST of a `~t` sigil and produces a Gettext `msgid` string
   (with `%{key}` placeholders) and a keyword list of bindings.
 
-  ## Key Derivation
-
-  The interpolation key for each `#{}` expression is derived automatically
-  from the expression's shape:
-
-  | Expression                         | Derived key        | Example                                         |
-  |------------------------------------|--------------------|--------------------------------------------------|
-  | Simple variable `name`             | `name`             | `~t"Hi #{name}"` → `%{name}`                    |
-  | Dot access `fruit.name`            | `fruit_name`       | `~t"#{fruit.name}"` → `%{fruit_name}`           |
-  | Deep dot access `a.b.c`            | `a_b_c`            | `~t"#{a.b.c}"` → `%{a_b_c}`                     |
-  | Module function `String.upcase(x)` | `string_upcase`    | `~t"#{String.upcase(x)}"` → `%{string_upcase}`  |
-  | Local function `status(x)`         | `status`           | `~t"#{status(x)}"` → `%{status}`                |
-  | Operator / literal `1 + 2`         | `var`              | `~t"#{1 + 2}"` → `%{var}`                       |
-  | Explicit key `key = expr`          | `key`              | `~t"#{status = get()}"` → `%{status}`           |
-
-  All keys are lowercased and joined with underscores.
-
-  ## Ambiguous Keys
-
-  When the same key appears more than once with the same value expression,
-  the duplicates are merged (the key appears only once in the bindings):
-
-      ~t"#{name} is #{name}"
-      #=> msgid: "%{name} is %{name}", bindings: [name: name]
-
-  When the same key appears with different value expressions, an
-  `ArgumentError` is raised, prompting the user to provide distinct explicit
-  keys:
-
-      ~t"#{x = foo} #{x = bar}"
-      #=> ** (ArgumentError) ambiguous interpolation key "x" with different values
+  See the [Interpolation guide](interpolation.html) for key derivation
+  rules, handling of ambiguous keys, and the explicit `key = expr` syntax.
   """
 
   @fallback_binding_key "var"
