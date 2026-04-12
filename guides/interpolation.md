@@ -15,23 +15,16 @@ placeholders plus a keyword list of bindings — all at compile time:
 The binding key for each `#{expr}` is derived from the shape of the
 expression:
 
-| Expression                           | Derived key     | Example                                            |
-|--------------------------------------|-----------------|----------------------------------------------------|
-| Simple variable `name`               | `name`          | `~t"Hi #{name}"` → `%{name}`                       |
-| Module attribute `@count`            | `count`         | `~t"#{@count} items"` → `%{count}`                 |
-| Assigns access `assigns.name`        | `name`          | `~t"Hi #{assigns.name}"` → `%{name}`               |
-| Dot access `fruit.name`              | `fruit_name`    | `~t"#{fruit.name}"` → `%{fruit_name}`              |
-| Deep dot access `a.b.c`              | `a_b_c`         | `~t"#{a.b.c}"` → `%{a_b_c}`                        |
-| Module function `String.upcase(x)`   | `string_upcase` | `~t"#{String.upcase(x)}"` → `%{string_upcase}`     |
-| Local function `status(x)`           | `status`        | `~t"#{status(x)}"` → `%{status}`                   |
-| Operator / literal `1 + 2`           | `var`           | `~t"#{1 + 2}"` → `%{var}`                          |
+| Type                | Example              | Derived key     |
+| ------------------- | -------------------- | --------------- |
+| Variable            | `name`               | `name`          |
+| Phoenix assigns     | `@count`             | `count`         |
+| Dot access          | `fruit.name`         | `fruit_name`    |
+| Remote function     | `String.upcase(x)`   | `string_upcase` |
+| Local function      | `status(x)`          | `status`        |
+| Others              | `1 + 2`              | `var`           |
 
 All keys are lowercased and joined with underscores.
-
-> #### HEEx assigns {: .info}
->
-> The `assigns.name` form is for HEEx templates, which rewrite `@name` to
-> `assigns.name` before the sigil sees them. Both forms derive the same key.
 
 ## Ambiguous keys
 
