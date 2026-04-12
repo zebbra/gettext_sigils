@@ -8,22 +8,6 @@ defmodule GettextSigils.Modifiers.KeywordModifier do
             context: [
               type: {:or, [:string, nil]},
               doc: "Gettext context. Use `nil` to clear the context, or a binary to override."
-            ],
-            preprocess: [
-              type: {:custom, __MODULE__, :validate_fn, []},
-              doc: """
-              A remote function capture (e.g. `&MyApp.Util.trim/1`) called at
-              compile time with the parsed `{msgid, bindings}` tuple. It must
-              return `{:ok, {msgid, bindings}}` or `{:error, reason}`.
-              """
-            ],
-            postprocess: [
-              type: {:custom, __MODULE__, :validate_fn, []},
-              doc: """
-              A remote function capture (e.g. `&String.upcase/1`) called at
-              runtime with the final translated string. It must return
-              `{:ok, value}` (any term) or `{:error, reason}`.
-              """
             ]
           )
 
@@ -40,11 +24,6 @@ defmodule GettextSigils.Modifiers.KeywordModifier do
 
   #{NimbleOptions.docs(@schema)}
 
-  The `:preprocess` and `:postprocess` values must be **remote function
-  captures** (e.g. `&String.upcase/1`) because they are baked into the
-  runtime AST of each `~t` call site. Anonymous functions like
-  `fn s -> ... end` and local captures are rejected at `use GettextSigils`
-  time.
   """
 
   use GettextSigils.Modifier
@@ -56,23 +35,6 @@ defmodule GettextSigils.Modifiers.KeywordModifier do
   """
   @spec schema() :: NimbleOptions.t()
   def schema, do: @schema
-
-  @doc false
-  def validate_fn(fun) when is_function(fun, 1) do
-    case Function.info(fun, :type) do
-      {:type, :external} ->
-        {:ok, fun}
-
-      _ ->
-        {:error,
-         "must be a remote function capture like `&Module.function/1`, " <>
-           "anonymous and local functions cannot be used here"}
-    end
-  end
-
-  def validate_fn(other) do
-    {:error, "expected a remote function capture (arity 1), got: #{inspect(other)}"}
-  end
 
   @impl true
   def init(opts) do
@@ -97,21 +59,5 @@ defmodule GettextSigils.Modifiers.KeywordModifier do
     new_domain = Keyword.get(opts, :domain, domain)
     new_context = Keyword.get(opts, :context, context)
     {:ok, {new_domain, new_context}}
-  end
-
-  @impl true
-  def preprocess(parsed, opts) do
-    case Keyword.fetch(opts, :preprocess) do
-      {:ok, fun} -> fun.(parsed)
-      :error -> {:ok, parsed}
-    end
-  end
-
-  @impl true
-  def postprocess(string, opts) do
-    case Keyword.fetch(opts, :postprocess) do
-      {:ok, fun} -> fun.(string)
-      :error -> {:ok, string}
-    end
   end
 end

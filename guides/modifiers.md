@@ -112,28 +112,14 @@ Each modifier key is a single lowercase letter (`a`–`z`). Options:
   default domain). Passing `nil` is deprecated and emits a compile-time
   warning; use `:default` instead.
 * `:context` — binary or `nil` (no context)
-* `:preprocess` — a remote function capture (e.g. `&MyApp.Util.trim/1`)
-  called at compile time with the parsed `{msgid, bindings}` tuple. Must
-  return `{:ok, {msgid, bindings}}` or `{:error, reason}`.
-* `:postprocess` — a remote function capture (e.g. `&String.upcase/1`)
-  called at runtime with the final translated string. Must return
-  `{:ok, value}` (any term) or `{:error, reason}`.
-
-A single keyword entry can combine any of these options. For example,
-`u: [postprocess: &String.upcase/1]` defines an upcase modifier, and
-`c: [domain: "errors", postprocess: &MyApp.Util.bracket/1]` defines a
-modifier that overrides the domain *and* post-processes the result.
 
 Omitting a key leaves the current accumulator untouched. Modifiers chain
 left-to-right, so `~t"Oops"em` applies `e` first (sets `domain: "errors"`)
 then `m` (sets `context: "MyApp.Frontend"`).
 
-> #### Only remote captures {: .warning}
->
-> The `:preprocess` and `:postprocess` values must be remote function
-> captures. Anonymous functions (`fn s -> ... end`) and local captures
-> are rejected at `use GettextSigils` time. For more complex
-> transformations, use a [module-based modifier](#module-based-modifiers).
+For anything beyond domain and context — rewriting messages, transforming
+the output, or validating options — use a
+[module-based modifier](#module-based-modifiers).
 
 ## Module-based modifiers
 
