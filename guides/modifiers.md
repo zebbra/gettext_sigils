@@ -165,5 +165,67 @@ use GettextSigils,
 ~t"hello"us   # => "HELLO!!!"   (upcase runs first, then shout)
 ```
 
+### Example: Markdown postprocessing with MDEx
+
+A modifier that renders translated strings as HTML via
+[MDEx](https://hexdocs.pm/mdex/), passing options through to
+`MDEx.to_html/2`:
+
+```elixir
+defmodule MyApp.MarkdownModifier do
+  use GettextSigils.Modifier
+
+  @impl true
+  def postprocess(string, opts) do
+    MDEx.to_html(string, opts)
+  end
+end
+```
+
+Wire it up with any MDEx options you need:
+
+```elixir
+use GettextSigils,
+  backend: MyApp.Gettext,
+  sigils: [
+    modifiers: [
+      m: {MyApp.MarkdownModifier, extension: [strikethrough: true]}
+    ]
+  ]
+
+~t"**bold** and ~~struck~~"m
+# => {:ok, "<p><strong>bold</strong> and <del>struck</del></p>\n"}
+```
+
+### Example: HTML-safe output with Phoenix.HTML
+
+A modifier that wraps the translated string in
+[`Phoenix.HTML.raw/1`](https://hexdocs.pm/phoenix_html/Phoenix.HTML.html#raw/1)
+so it renders as trusted HTML in HEEx templates:
+
+```elixir
+defmodule MyApp.RawModifier do
+  use GettextSigils.Modifier
+
+  @impl true
+  def postprocess(string, _opts) do 
+    {:ok, Phoenix.HTML.raw(string)}
+  end
+end
+```
+
+```elixir
+use GettextSigils,
+  backend: MyApp.Gettext,
+  sigils: [
+    modifiers: [
+      r: MyApp.RawModifier
+    ]
+  ]
+
+~t"<em>important</em>"r
+# => {:safe, "<em>important</em>"}
+```
+
 See `GettextSigils.Modifier` for the full list of callbacks, their
 timing (compile time vs runtime), and how to validate opts with `init/1`.
