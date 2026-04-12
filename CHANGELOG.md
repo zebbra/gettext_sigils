@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.5.0](https://github.com/zebbra/gettext_sigils/compare/v0.4.0...v0.5.0) (2026-04-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* add GettextSigils.Modifier behaviour for the ~t sigil
+
+### Features
+
+* add GettextSigils.Modifier behaviour for the ~t sigil ([1145693](https://github.com/zebbra/gettext_sigils/commit/1145693cbf6a60315702977b945c18c1f8e50c12))
+* add GettextSigils.Modifier behaviour for the ~t sigil ([5ec21e0](https://github.com/zebbra/gettext_sigils/commit/5ec21e0e0b8f6d9a2d1e145d57da4366dabf6447))
+
 ## [0.4.0](https://github.com/zebbra/gettext_sigils/compare/v0.3.2...v0.4.0) (2026-03-24)
 
 
