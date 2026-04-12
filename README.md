@@ -65,9 +65,7 @@ You can then use the `~t` sigil instead of the `gettext` macro:
 gettext("Hello, World!")
 ```
 
-> #### Gettext macros still work {: .tip}
->
-> The default Gettext macros (`gettext`, `pgettext`, `dgettext`, ...) remain available in modules that `use GettextSigils`, so you can mix and match as needed.
+**Note:** The default Gettext macros (`gettext`, `pgettext`, `dgettext`, ...) remain available in modules that `use GettextSigils`, so you can mix and match as needed.
 
 ## Features
 
@@ -121,8 +119,6 @@ defmodule MyAppWeb.DashboardLive do
 end
 ```
 
-The `g` modifier above is a user-defined "global" escape hatch: `domain: :default` resets to the backend's configured default domain and `context: nil` clears whatever context the module or an earlier modifier set. Modifiers apply left-to-right, so in `eg` the final `g` wins.
-
 Modifier entries can also point at a module for message rewriting, postprocessing, or custom pluralization. See the [Modifiers guide](guides/modifiers.md) for the full picture.
 
 ### Pluralization
@@ -133,13 +129,10 @@ The built-in `N` modifier turns a `~t` sigil into a plural Gettext call, selecti
 ~t"#{count} error(s)"N
 ```
 
-The msgid is reused as both `msgid` and `msgid_plural` in the `.po` file, so translators can fill in the distinct forms per locale:
+Pluralization requires a `count` binding key. Use an explicit binding key to bind it to any value:
 
-```pot
-msgid "%{count} error(s)"
-msgid_plural "%{count} error(s)"
-msgstr[0] "One error"
-msgstr[1] "%{count} errors"
+```elixir
+~t"#{count = length(errors)} error(s)"N
 ```
 
 See the [Pluralization guide](guides/pluralization.md) for the full rules and how to write a custom pluralization modifier.
