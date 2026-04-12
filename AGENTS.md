@@ -34,6 +34,15 @@ Use [Conventional Commits](https://www.conventionalcommits.org/) — release-ple
 # Guidelines
 
 - Always run `mix precommit` before committing
+- For callouts in documentation (README, guides, moduledocs), use [ExDoc admonitions](https://hexdocs.pm/ex_doc/readme.html#admonition-blocks) instead of plain blockquotes or bold "Note:" prefixes. Example:
+
+  ```markdown
+  > #### Reserved letters {: .info}
+  >
+  > Custom modifiers must use lowercase letters (`a`–`z`).
+  ```
+
+  Supported classes: `.info`, `.tip`, `.warning`, `.error`, `.neutral`.
 
 # Usage Rules
 

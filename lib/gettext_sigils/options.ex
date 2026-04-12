@@ -1,23 +1,14 @@
 defmodule GettextSigils.Options do
-  @modifier_value_schema NimbleOptions.new!(
-                           domain: [
-                             type: :any,
-                             doc: "Gettext domain to use when using this modifier."
-                           ],
-                           context: [
-                             type: :any,
-                             doc: "Gettext context to use when using this modifier."
-                           ]
-                         )
-
   @schema NimbleOptions.new!(
             domain: [
-              type: :any,
-              doc: "Default Gettext domain within the module that is using `GettextSigils`."
+              type: {:or, [:string, {:in, [:default]}]},
+              doc:
+                "Default Gettext domain within the module that is using `GettextSigils`. Use the `:default` atom to follow the backend's configured default domain, or a binary to override."
             ],
             context: [
-              type: :any,
-              doc: "Default Gettext context within the module that is using `GettextSigils`."
+              type: {:or, [:string, nil]},
+              doc:
+                "Default Gettext context within the module that is using `GettextSigils`. May be `nil` (the default) or a binary."
             ],
             modifiers: [
               type: {:list, {:custom, __MODULE__, :validate_modifier, []}},
@@ -27,9 +18,10 @@ defmodule GettextSigils.Options do
 
               The key has to be an atom between `:a` and `:z`. Uppercase modifiers are used by the library (eg. `N` for pluralization).
 
-              Each modifier can define the following options:
+              Each entry can be a static keyword list, a module atom, or a `{module, opts}` tuple.
+              The keyword-list form is shorthand for the built-in `GettextSigils.Modifiers.KeywordModifier`, whose options are:
 
-              #{NimbleOptions.docs(@modifier_value_schema, nest_level: 1)}
+              #{NimbleOptions.docs(GettextSigils.Modifiers.KeywordModifier.schema(), nest_level: 1)}
               """
             ]
           )
@@ -56,27 +48,93 @@ defmodule GettextSigils.Options do
 
   """
 
+  alias GettextSigils.Modifiers.KeywordModifier
+
   @modifier_keys Enum.map(?a..?z, &List.to_atom([&1]))
 
-  @doc "Validates the given options or raises a `NimbleOptions.ValidationError` if invalid."
+  @doc """
+  Validates the given options or raises a `NimbleOptions.ValidationError` if invalid.
+
+  After validation, the `:modifiers` keyword list is converted into a map keyed by
+  the character code of each modifier letter (e.g. `?e` instead of `:e`) so that
+  modifier lookup can do a direct `Map.fetch/2` against the sigil charlist without
+  re-converting characters to atoms on every expansion.
+  """
   @spec validate!(keyword()) :: keyword() | no_return()
   def validate!(opts) do
-    NimbleOptions.validate!(opts, @schema)
+    opts
+    |> deprecate_nil_domain()
+    |> NimbleOptions.validate!(@schema)
+    |> Keyword.update!(:modifiers, &modifiers_to_map/1)
   end
 
-  @doc false
-  def validate_modifier({key, value}) when key in @modifier_keys and is_list(value) do
-    case NimbleOptions.validate(value, @modifier_value_schema) do
-      {:ok, validated} -> {:ok, {key, validated}}
-      {:error, error} -> {:error, "modifier #{inspect(key)}: #{Exception.message(error)}"}
+  defp deprecate_nil_domain(opts) do
+    case Keyword.fetch(opts, :domain) do
+      {:ok, nil} ->
+        IO.warn("setting :domain to nil is deprecated, use :default instead")
+        Keyword.put(opts, :domain, :default)
+
+      _ ->
+        opts
     end
   end
 
-  def validate_modifier({key, value}) when key in @modifier_keys do
-    {:error, "modifier #{inspect(key)}: options must be a keyword list, got: #{inspect(value)}"}
+  defp modifiers_to_map(modifiers) do
+    Map.new(modifiers, fn {key, value} ->
+      [char] = Atom.to_charlist(key)
+      {char, value}
+    end)
   end
 
-  def validate_modifier({key, _value}) do
+  @doc false
+  def validate_modifier({key, _value}) when key not in @modifier_keys do
     {:error, "modifier keys must be lowercase letters (a-z), got: #{inspect(key)}"}
+  end
+
+  def validate_modifier({key, value}) when is_list(value) do
+    init_modifier(key, KeywordModifier, value)
+  end
+
+  def validate_modifier({key, module}) when is_atom(module) do
+    validate_modifier_module(key, module, [])
+  end
+
+  def validate_modifier({key, {module, opts}}) when is_atom(module) and is_list(opts) do
+    validate_modifier_module(key, module, opts)
+  end
+
+  def validate_modifier({key, {module, bad_opts}}) when is_atom(module) do
+    {:error, "modifier #{inspect(key)}: options must be a keyword list, got: #{inspect(bad_opts)}"}
+  end
+
+  def validate_modifier({key, value}) do
+    {:error,
+     "modifier #{inspect(key)}: expected a keyword list, module, or {module, keyword} tuple, " <>
+       "got: #{inspect(value)}"}
+  end
+
+  defp validate_modifier_module(key, module, opts) do
+    Code.ensure_compiled!(module)
+
+    if implements_modifier?(module) do
+      init_modifier(key, module, opts)
+    else
+      {:error, "modifier #{inspect(key)}: #{inspect(module)} does not implement GettextSigils.Modifier"}
+    end
+  end
+
+  defp init_modifier(key, module, opts) do
+    case module.init(opts) do
+      {:ok, validated} ->
+        {:ok, {key, {module, validated}}}
+
+      {:error, reason} ->
+        {:error, "modifier #{inspect(key)}: #{GettextSigils.Modifiers.format_error(reason)}"}
+    end
+  end
+
+  defp implements_modifier?(module) do
+    behaviours = module.module_info(:attributes)[:behaviour] || []
+    GettextSigils.Modifier in behaviours
   end
 end

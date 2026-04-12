@@ -1,3 +1,32 @@
+defmodule GettextSigilsTest.UpcaseModifier do
+  @moduledoc false
+  use GettextSigils.Modifier
+
+  @impl true
+  def postprocess(string, _opts), do: {:ok, String.upcase(string)}
+end
+
+defmodule GettextSigilsTest.ShoutModifier do
+  @moduledoc false
+  use GettextSigils.Modifier
+
+  @impl true
+  def postprocess(string, opts) do
+    marks = String.duplicate("!", Keyword.get(opts, :intensity, 1))
+    {:ok, string <> marks}
+  end
+end
+
+defmodule GettextSigilsTest.PrefixModifier do
+  @moduledoc false
+  use GettextSigils.Modifier
+
+  @impl true
+  def postprocess(string, opts) do
+    {:ok, Keyword.fetch!(opts, :prefix) <> string}
+  end
+end
+
 defmodule GettextSigilsTest do
   @moduledoc false
   use ExUnit.Case, async: true
@@ -8,7 +37,10 @@ defmodule GettextSigilsTest do
       domain: "frontend",
       modifiers: [
         e: [domain: "errors"],
-        m: [context: "MyModule"]
+        m: [context: "MyModule"],
+        u: GettextSigilsTest.UpcaseModifier,
+        s: {GettextSigilsTest.ShoutModifier, intensity: 3},
+        p: {GettextSigilsTest.PrefixModifier, prefix: "hello "}
       ]
     ]
 
@@ -65,6 +97,41 @@ defmodule GettextSigilsTest do
     test "plural with modifiers" do
       count = 5
       assert ~t"#{count} error(s)"eN == "errors: 5 error(s)"
+    end
+  end
+
+  describe "modifier callbacks" do
+    test "postprocess transforms the final string" do
+      assert ~t"hello"u == "FRONTEND: HELLO"
+    end
+
+    test "postprocess receives user opts" do
+      assert ~t"hello"s == "frontend: hello!!!"
+    end
+
+    test "multiple modifiers chain left-to-right" do
+      # `pu` — prefix runs first, then upcase. The dummy backend prepends
+      # "frontend: ", so:
+      #   dpgettext  → "frontend: hello"
+      #   p (prefix) → "hello frontend: hello"
+      #   u (upcase) → "HELLO FRONTEND: HELLO"
+      assert ~t"hello"pu == "HELLO FRONTEND: HELLO"
+
+      # `up` — upcase first, then prefix:
+      #   dpgettext  → "frontend: hello"
+      #   u (upcase) → "FRONTEND: HELLO"
+      #   p (prefix) → "hello FRONTEND: HELLO"
+      assert ~t"hello"up == "hello FRONTEND: HELLO"
+    end
+
+    test "postprocess combines with N plural modifier" do
+      count = 3
+      assert ~t"#{count} item(s)"uN == "FRONTEND: 3 ITEM(S)"
+    end
+
+    test "postprocess combines with interpolation" do
+      name = "world"
+      assert ~t"hello, #{name}"u == "FRONTEND: HELLO, WORLD"
     end
   end
 end
