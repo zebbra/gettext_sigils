@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/zebbra/gettext_sigils/compare/v0.5.0...v0.5.1) (2026-04-22)
+
+
+### Bug Fixes
+
+* remove rogue debug logs ([1a9904d](https://github.com/zebbra/gettext_sigils/commit/1a9904db0e3e7754090c13d2e922d41ca92aefd6))
+
 ## [0.5.0](https://github.com/zebbra/gettext_sigils/compare/v0.4.0...v0.5.0) (2026-04-12)
 
 ### Features
