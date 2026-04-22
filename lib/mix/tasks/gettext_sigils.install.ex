@@ -125,8 +125,6 @@ if Code.ensure_loaded?(Igniter) do
     end
   end
 else
-  IO.puts("TETEST")
-
   defmodule Mix.Tasks.GettextSigils.Install do
     @shortdoc "#{__MODULE__.Docs.short_doc()} | Install `igniter` to use"
 
