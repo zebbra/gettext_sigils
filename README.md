@@ -38,7 +38,7 @@ The package can be installed by adding `gettext_sigils` to your list of dependen
 ```elixir
 def deps do
   [
-    {:gettext_sigils, "~> 0.5.0"}
+    {:gettext_sigils, "~> 0.5.1"}
   ]
 end
 ```

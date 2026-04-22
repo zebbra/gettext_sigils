@@ -5,7 +5,7 @@ defmodule GettextSigils.MixProject do
   A ~t sigil for Gettext translations, to reduce boilerplate and improve readability.
   """
 
-  @version "0.5.0"
+  @version "0.5.1"
   @github_url "https://github.com/zebbra/gettext_sigils"
 
   def project do
