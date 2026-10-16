@@ -16,7 +16,10 @@ defmodule GettextSigils.Sigil do
 
   @spec sigil_t(Macro.t(), charlist()) :: Macro.t()
   defmacro sigil_t(term, modifiers) do
-    opts = Module.get_attribute(__CALLER__.module, :__gettext_sigils__)
+    # Unset while the block that `use`s GettextSigils is still being expanded.
+    opts =
+      Module.get_attribute(__CALLER__.module, :__gettext_sigils__) ||
+        Module.get_attribute(__CALLER__.module, :__gettext_sigils_expanded__)
 
     defaults = {Keyword.get(opts, :domain, :default), Keyword.get(opts, :context, nil)}
 
@@ -29,8 +32,7 @@ defmodule GettextSigils.Sigil do
     parsed
     |> preprocess(modifiers)
     |> pluralize(modifiers)
-    |> translate(domain, context)
-    |> postprocess(modifiers)
+    |> translate_or_noop(domain, context, modifiers)
   end
 
   defp interpolate(term), do: Interpolation.parse!(term)
@@ -38,6 +40,15 @@ defmodule GettextSigils.Sigil do
   defp preprocess(parsed, modifiers), do: Modifiers.preprocess!(modifiers, parsed)
 
   defp pluralize(parsed, modifiers), do: Modifiers.pluralize!(modifiers, parsed)
+
+  # A noop message is never looked up, so there is no translation to postprocess.
+  defp translate_or_noop({:noop, pluralized}, domain, context, _modifiers), do: noop(pluralized, domain, context)
+
+  defp translate_or_noop(pluralized, domain, context, modifiers) do
+    pluralized
+    |> translate(domain, context)
+    |> postprocess(modifiers)
+  end
 
   # Emits a runtime call to `Modifiers.postprocess!/2` that walks the
   # resolved modifier chain at runtime, piping the translated string
@@ -48,6 +59,27 @@ defmodule GettextSigils.Sigil do
       GettextSigils.Modifiers.postprocess!(
         unquote(Macro.escape(modifiers)),
         unquote(inner)
+      )
+    end
+  end
+
+  defp noop({msgid, _bindings}, domain, context) do
+    quote do
+      dpgettext_noop(
+        unquote(domain),
+        unquote(context),
+        unquote(msgid)
+      )
+    end
+  end
+
+  defp noop({msgid, msgid_plural, _count, _bindings}, domain, context) do
+    quote do
+      dpngettext_noop(
+        unquote(domain),
+        unquote(context),
+        unquote(msgid),
+        unquote(msgid_plural)
       )
     end
   end

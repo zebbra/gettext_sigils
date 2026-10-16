@@ -23,7 +23,7 @@ The letter-to-behavior mapping is defined by the using module's
 > #### Reserved letters {: .info}
 >
 > Custom modifiers must use lowercase letters (`a`–`z`). Uppercase
-> letters are reserved for library built-ins (currently only `N`).
+> letters are reserved for library built-ins (`N` and `X`).
 
 ## What modifiers can do
 
@@ -74,9 +74,23 @@ else you'd do to a string.
 
 ## Built-in modifiers
 
-The only built-in modifier is `N` for pluralization. See the
-[Pluralization guide](pluralization.html) for details and for how to
-write a custom pluralization modifier with a different syntax.
+`N` pluralizes. See the [Pluralization guide](pluralization.html) for
+details and for how to write a custom pluralization modifier with a
+different syntax.
+
+`X` marks a message for extraction without translating it, like
+`gettext_noop/1`. It returns the msgid (or `{msgid, msgid_plural}` with
+`N`) in the domain and context the other modifiers resolve, so the string
+can be stored now and translated later:
+
+```elixir
+~t"Archived"X          # => dpgettext_noop(:default, nil, "Archived")
+~t"Not found"eX        # => dpgettext_noop("errors", nil, "Not found")
+```
+
+Interpolated expressions are not evaluated (only their `%{key}`
+placeholders reach the msgid) and postprocessing is skipped. See
+`GettextSigils.Modifiers.NoopModifier`.
 
 ## Keyword-list modifiers
 
