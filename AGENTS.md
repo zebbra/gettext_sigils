@@ -21,7 +21,7 @@
 
 ### Architecture
 
-All processing is compile-time macro expansion. No processes, no state. Each module using `GettextSigils` stores its configuration in the `@__gettext_sigils__` module attribute. The sigil macro reads this attribute to resolve domain, context, and modifiers when generating the Gettext call.
+All processing is compile-time macro expansion. No processes, no state. Each module using `GettextSigils` stores its configuration in the `@__gettext_sigils__` module attribute. The sigil macro reads this attribute to resolve domain, context, and modifiers when generating the Gettext call. Elixir expands the whole module body before running it (only `def` bodies expand later), so when the `:sigils` options are literal, `use` also stores them at expansion time; non-literal options delete what an earlier `use` stored. Outside functions, `~t` only accepts the `X` modifier (e.g. `@label ~t"Archived"X`) and needs those expansion-time options; otherwise it raises a `CompileError`.
 
 ## Commits
 
