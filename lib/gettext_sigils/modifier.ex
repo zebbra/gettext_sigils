@@ -53,10 +53,11 @@ defmodule GettextSigils.Modifier do
   @type pluralized ::
           input
           | {msgid, msgid, Macro.t(), bindings}
+  @type noop :: {:noop, input}
 
   @callback init(opts) :: result(opts)
   @callback domain_context(input, opts, domain_context) :: result(domain_context)
-  @callback preprocess(input, opts) :: result(input)
+  @callback preprocess(input, opts) :: result(input | noop)
   @callback postprocess(String.t(), opts) :: result(term())
   @callback pluralize(input, opts) :: result(pluralized)
 

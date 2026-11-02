@@ -3,6 +3,7 @@ defmodule GettextSigils.ModifiersTest do
 
   alias GettextSigils.Modifiers
   alias GettextSigils.Modifiers.KeywordModifier
+  alias GettextSigils.Modifiers.NoopModifier
   alias GettextSigils.Modifiers.PluralModifier
 
   defmodule DomainOverrideMod do
@@ -284,6 +285,19 @@ defmodule GettextSigils.ModifiersTest do
       assert_raise ArgumentError, "boom", fn ->
         Modifiers.preprocess!(resolved, {"hi", []})
       end
+    end
+  end
+
+  describe "noop tag" do
+    test "preprocess!/2 keeps the tag while later modifiers rewrite the untagged input" do
+      resolved = [{NoopModifier, []}, {PreprocessMod, [prefix: "[!] "]}, {NoopModifier, []}]
+
+      assert Modifiers.preprocess!(resolved, {"hi", []}) == {:noop, {"[!] hi", []}}
+    end
+
+    test "pluralize!/2 pluralizes the tagged input and keeps the tag" do
+      assert Modifiers.pluralize!([{PluralModifier, []}], {:noop, {"%{count} item(s)", [count: 3]}}) ==
+               {:noop, {"%{count} item(s)", "%{count} item(s)", 3, []}}
     end
   end
 

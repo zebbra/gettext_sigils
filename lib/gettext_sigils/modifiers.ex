@@ -2,9 +2,10 @@ defmodule GettextSigils.Modifiers do
   @moduledoc false
 
   alias GettextSigils.Modifier
+  alias GettextSigils.Modifiers.NoopModifier
   alias GettextSigils.Modifiers.PluralModifier
 
-  @default_modifiers %{?N => {PluralModifier, []}}
+  @default_modifiers %{?N => {PluralModifier, []}, ?X => {NoopModifier, []}}
 
   @type parsed :: {binary(), keyword()}
   @type plural :: {binary(), binary(), Macro.t(), keyword()}
@@ -57,27 +58,23 @@ defmodule GettextSigils.Modifiers do
           {domain :: term(), context :: term()}
         ) :: {domain :: term(), context :: term()}
   def resolve_domain_context!(resolved, parsed, {_domain, _context} = defaults) do
-    Enum.reduce_while(resolved, defaults, fn {module, mod_opts}, acc ->
-      case module.domain_context(parsed, mod_opts, acc) do
-        {:ok, {_new_domain, _new_context} = updated} -> {:cont, updated}
-        {:error, reason} -> raise ArgumentError, format_error(reason)
-      end
+    Enum.reduce(resolved, defaults, fn {module, mod_opts}, acc ->
+      {_new_domain, _new_context} = unwrap!(module.domain_context(parsed, mod_opts, acc))
     end)
   end
 
   @doc """
   Walks the resolved modifier chain left-to-right, piping the parsed
   `{msgid, bindings}` tuple through each modifier's `preprocess/2`
-  callback. Returns the final `{msgid, bindings}`. Raises `ArgumentError`
-  if a callback returns `{:error, reason}`.
+  callback. Returns the final `{msgid, bindings}`, tagged as
+  `{:noop, {msgid, bindings}}` once a modifier marked it (see
+  `GettextSigils.Modifiers.NoopModifier`). Raises `ArgumentError` if a
+  callback returns `{:error, reason}`.
   """
-  @spec preprocess!(resolved(), parsed()) :: parsed()
+  @spec preprocess!(resolved(), parsed()) :: parsed() | {:noop, parsed()}
   def preprocess!(resolved, parsed) do
-    Enum.reduce_while(resolved, parsed, fn {module, mod_opts}, acc ->
-      case module.preprocess(acc, mod_opts) do
-        {:ok, value} -> {:cont, value}
-        {:error, reason} -> raise ArgumentError, format_error(reason)
-      end
+    Enum.reduce(resolved, parsed, fn {module, mod_opts}, acc ->
+      under_noop(acc, &unwrap!(module.preprocess(&1, mod_opts)))
     end)
   end
 
@@ -92,16 +89,20 @@ defmodule GettextSigils.Modifiers do
       pluralize), or
     * the plural tuple from the first modifier that did.
 
+  A `{:noop, parsed}` input is pluralized as `parsed` and keeps its tag.
+
   Raises `ArgumentError` at compile time when a modifier returns
   `{:error, reason}` from `pluralize/2`.
   """
-  @spec pluralize!(resolved(), parsed()) :: parsed() | plural()
+  @spec pluralize!(resolved(), parsed() | {:noop, parsed()}) ::
+          parsed() | plural() | {:noop, parsed() | plural()}
+  def pluralize!(resolved, {:noop, parsed}), do: {:noop, pluralize!(resolved, parsed)}
+
   def pluralize!(resolved, parsed) do
     Enum.reduce_while(resolved, parsed, fn {module, mod_opts}, acc ->
-      case module.pluralize(acc, mod_opts) do
-        {:ok, {_msgid, _bindings} = singular} -> {:cont, singular}
-        {:ok, {_msgid, _msgid_plural, _count, _bindings} = plural} -> {:halt, plural}
-        {:error, reason} -> raise ArgumentError, format_error(reason)
+      case unwrap!(module.pluralize(acc, mod_opts)) do
+        {_msgid, _bindings} = singular -> {:cont, singular}
+        {_msgid, _msgid_plural, _count, _bindings} = plural -> {:halt, plural}
       end
     end)
   end
@@ -117,13 +118,20 @@ defmodule GettextSigils.Modifiers do
   """
   @spec postprocess!(resolved(), term()) :: term()
   def postprocess!(resolved, string) do
-    Enum.reduce_while(resolved, string, fn {module, mod_opts}, acc ->
-      case module.postprocess(acc, mod_opts) do
-        {:ok, value} -> {:cont, value}
-        {:error, reason} -> raise ArgumentError, format_error(reason)
-      end
+    Enum.reduce(resolved, string, fn {module, mod_opts}, acc ->
+      unwrap!(module.postprocess(acc, mod_opts))
     end)
   end
+
+  # Runs `fun` on the untagged input so modifiers never see the noop tag, then restores it.
+  defp under_noop({:noop, input}, fun), do: input |> fun.() |> tag_noop()
+  defp under_noop(input, fun), do: fun.(input)
+
+  defp tag_noop({:noop, _input} = tagged), do: tagged
+  defp tag_noop(input), do: {:noop, input}
+
+  defp unwrap!({:ok, value}), do: value
+  defp unwrap!({:error, reason}), do: raise(ArgumentError, format_error(reason))
 
   @doc false
   @spec format_error(Modifier.reason()) :: String.t()

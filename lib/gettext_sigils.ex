@@ -25,6 +25,9 @@ defmodule GettextSigils do
 
   defmacro __using__(opts) do
     {sigils_opts, gettext_opts} = Keyword.pop(opts, :sigils, [])
+    sigils_opts = Macro.expand_literals(sigils_opts, __CALLER__)
+
+    put_literal_options(sigils_opts, __CALLER__)
 
     quote do
       use Gettext, unquote(gettext_opts)
@@ -34,4 +37,17 @@ defmodule GettextSigils do
       @__gettext_sigils__ GettextSigils.Options.validate!(unquote(sigils_opts))
     end
   end
+
+  # The module body expands before it runs, so literal options are also stored now for `~t` outside
+  # functions; other options clear what an earlier `use` stored.
+  defp put_literal_options(opts, %{module: module}) when not is_nil(module) do
+    if Macro.quoted_literal?(opts) do
+      {value, _binding} = Code.eval_quoted(opts)
+      Module.put_attribute(module, :__gettext_sigils__, GettextSigils.Options.validate!(value))
+    else
+      Module.delete_attribute(module, :__gettext_sigils__)
+    end
+  end
+
+  defp put_literal_options(_opts, _env), do: :ok
 end
